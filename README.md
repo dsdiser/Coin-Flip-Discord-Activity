@@ -1,6 +1,47 @@
-# Discord Activity: Getting Started Guide
 
-This template is used in the [Building An Activity](https://discord.com/developers/docs/activities/building-an-activity) tutorial in the Discord Developer Docs.
+# Coin Flip — Discord Activity
 
-Read more about building Discord Activities with the Embedded App SDK at [https://discord.com/developers/docs/activities/overview](https://discord.com/developers/docs/activities/overview).
+Multiplayer lobby that runs as a Discord Activity so you can flip coins together inside Discord.
+
+## Goals
+
+- Multiplayer lobby for joining a coin flip session
+- Real-time flips resolved in the activity
+- Maybe threejs based implementation for flipping, we'll see.
+
+## Dependencies
+
+Client (UI):
+- React - Typescript
+- @discord/embedded-app-sdk
+- Vite (dev)
+
+Server:
+- Express
+- dotenv (for simple env config)
+- node-fetch
+
+## Quick start (development)
+
+Open two terminals and run the client and server (if you want the server):
+
+Client (from repository root):
+
+```cmd
+cd client
+npm install
+npm run dev
+```
+
+Server (optional):
+
+```cmd
+cd server
+npm install
+npm start
+```
+
+The client uses the Embedded App SDK to run as an Activity inside Discord.
+
+
 
