@@ -1,0 +1,9 @@
+{
+	// Use 2 spaces for indentation in this workspace
+	"editor.tabSize": 2,
+	"editor.insertSpaces": true,
+	"editor.detectIndentation": false,
+
+	// Optional: format on save for convenience
+	"editor.formatOnSave": true
+}
