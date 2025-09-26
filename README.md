@@ -33,7 +33,7 @@ npm install
 npm run dev
 ```
 
-Server (optional):
+Server:
 
 ```cmd
 cd server
