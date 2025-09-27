@@ -1,7 +1,9 @@
 // filepath: client/src/main.tsx
 import React, { useRef, useState } from "react";
 import ReactDOM from "react-dom/client";
-import "./style.css";
+import "./styles/global.css";
+import appStyles from "./styles/App.module.css";
+import coinStyles from "./styles/Coin.module.css";
 import { DiscordContextProvider, useDiscordSdk } from "./hooks/useDiscordSdk";
 import DebugOverlay from "./components/DebugOverlay";
 
@@ -34,7 +36,7 @@ function CoinFlipApp() {
       const offset = result === 'heads' ? 0 : 180;
       const total = base + offset;
       coinRef.current.style.setProperty('--flip-rotation', `${total}deg`);
-      coinRef.current.classList.remove('flip-ending');
+      coinRef.current.classList.remove(coinStyles.flipEnding);
 
       // finalize function used by both event listeners and fallback
       let fallback: number | undefined;
@@ -56,8 +58,8 @@ function CoinFlipApp() {
         setHistory((h) => [{ result, timestamp: Date.now() }, ...h]);
         setIsFlipping(false);
         if (coinRef.current) {
-          coinRef.current.classList.remove('flipping');
-          coinRef.current.classList.add('flip-ending');
+          coinRef.current.classList.remove(coinStyles.flipping);
+          coinRef.current.classList.add(coinStyles.flipEnding);
           coinRef.current.removeEventListener('animationend', wrapped as any);
           coinRef.current.removeEventListener('transitionend', wrapped as any);
         }
@@ -79,7 +81,7 @@ function CoinFlipApp() {
       // start the animation by toggling class
       // force reflow
       coinRef.current.offsetWidth;
-      coinRef.current.classList.add('flipping');
+      coinRef.current.classList.add(coinStyles.flipping);
 
       // fallback timeout in case events don't fire
       fallback = window.setTimeout(() => {
@@ -91,7 +93,7 @@ function CoinFlipApp() {
     return (<div>Missing user object</div>)
   }
   return (
-    <div className="app">
+    <div className={appStyles.app}>
       <DebugOverlay
         status={status}
         authenticated={authenticated}
@@ -101,18 +103,18 @@ function CoinFlipApp() {
         auth={auth}
       />
       <h1>Coin Flip</h1>
-        <div className="player">
+        <div className={appStyles.player}>
           <div>Joined as <strong>{userName}</strong></div>
-          <div className="coin-area">
-            <div className="coin-container">
-              <div className="coin" ref={coinRef} role="img" aria-label="coin">
-                <div className="face heads" aria-hidden>
+          <div className={coinStyles.coinArea}>
+            <div className={coinStyles.coinContainer}>
+              <div className={coinStyles.coin} ref={coinRef} role="img" aria-label="coin">
+                <div className={`${coinStyles.face} ${coinStyles.heads}`} aria-hidden>
                   <svg width="72" height="72" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <circle cx="12" cy="12" r="10" fill="#ffb300" />
                     <text x="50%" y="55%" textAnchor="middle" fontSize="10" fontWeight="700" fill="#5a3a00">H</text>
                   </svg>
                 </div>
-                <div className="face tails" aria-hidden>
+                <div className={`${coinStyles.face} ${coinStyles.tails}`} aria-hidden>
                   <svg width="72" height="72" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <circle cx="12" cy="12" r="10" fill="#e0e0e0" />
                     <text x="50%" y="55%" textAnchor="middle" fontSize="10" fontWeight="700" fill="#333">T</text>
@@ -121,18 +123,18 @@ function CoinFlipApp() {
               </div>
             </div>
 
-            <div className="controls">
-              <button onClick={flipCoin} disabled={isFlipping} aria-disabled={isFlipping}>
+            <div className={appStyles.controls}>
+                <button onClick={flipCoin} disabled={isFlipping} aria-disabled={isFlipping}>
                 {isFlipping ? 'Flipping...' : 'Flip Coin'}
               </button>
-              <div className="result" aria-live="polite">
+                <div className={appStyles.result} aria-live="polite">
                 {lastResult ? `Last: ${lastResult.toUpperCase()}` : 'No flips yet'}
               </div>
             </div>
           </div>
 
           {history.length > 0 && (
-            <div className="history">
+            <div className={appStyles.history}>
               <h3>History</h3>
               <ul>
                 {history.map((h, idx) => (
