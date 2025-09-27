@@ -2,10 +2,10 @@
 import React, { useRef, useState } from "react";
 import ReactDOM from "react-dom/client";
 import "./styles/global.css";
-import appStyles from "./styles/App.module.css";
-import coinStyles from "./styles/Coin.module.css";
+import appStyles from "./components/App.module.css";
+import coinStyles from "./components/Coin.module.css";
 import { DiscordContextProvider, useDiscordSdk } from "./hooks/useDiscordSdk";
-import DebugOverlay from "./components/DebugOverlay";
+import DebugOverlay from "./components/debug-overlay/DebugOverlay";
 
 const App: React.FC = () => {
   return (
@@ -84,7 +84,7 @@ function CoinFlipApp() {
       }, 1400);
     }
   }
-  if (!user){
+  if (!user) {
     return (<div>Missing user object</div>)
   }
   return (
@@ -98,49 +98,49 @@ function CoinFlipApp() {
         auth={auth}
       />
       <h1>Coin Flip</h1>
-        <div className={appStyles.player}>
-          <div>Joined as <strong>{userName}</strong></div>
-          <div className={coinStyles.coinArea}>
-            <div className={coinStyles.coinContainer}>
-              <div className={coinStyles.coin} ref={coinRef} role="img" aria-label="coin">
-                <div className={`${coinStyles.face} ${coinStyles.heads}`} aria-hidden>
-                  <svg width="72" height="72" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="12" cy="12" r="10" fill="#ffb300" />
-                    <text x="50%" y="55%" textAnchor="middle" fontSize="10" fontWeight="700" fill="#5a3a00">H</text>
-                  </svg>
-                </div>
-                <div className={`${coinStyles.face} ${coinStyles.tails}`} aria-hidden>
-                  <svg width="72" height="72" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="12" cy="12" r="10" fill="#e0e0e0" />
-                    <text x="50%" y="55%" textAnchor="middle" fontSize="10" fontWeight="700" fill="#333">T</text>
-                  </svg>
-                </div>
+      <div className={appStyles.player}>
+        <div>Joined as <strong>{userName}</strong></div>
+        <div className={coinStyles.coinArea}>
+          <div className={coinStyles.coinContainer}>
+            <div className={coinStyles.coin} ref={coinRef} role="img" aria-label="coin">
+              <div className={`${coinStyles.face} ${coinStyles.heads}`} aria-hidden>
+                <svg width="72" height="72" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="12" cy="12" r="10" fill="#ffb300" />
+                  <text x="50%" y="55%" textAnchor="middle" fontSize="10" fontWeight="700" fill="#5a3a00">H</text>
+                </svg>
               </div>
-            </div>
-
-            <div className={appStyles.controls}>
-                <button onClick={flipCoin} disabled={isFlipping} aria-disabled={isFlipping}>
-                {isFlipping ? 'Flipping...' : 'Flip Coin'}
-              </button>
-                <div className={appStyles.result} aria-live="polite">
-                {lastResult ? `Last: ${lastResult.toUpperCase()}` : 'No flips yet'}
+              <div className={`${coinStyles.face} ${coinStyles.tails}`} aria-hidden>
+                <svg width="72" height="72" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="12" cy="12" r="10" fill="#e0e0e0" />
+                  <text x="50%" y="55%" textAnchor="middle" fontSize="10" fontWeight="700" fill="#333">T</text>
+                </svg>
               </div>
             </div>
           </div>
 
-          {history.length > 0 && (
-            <div className={appStyles.history}>
-              <h3>History</h3>
-              <ul>
-                {history.map((h, idx) => (
-                  <li key={h.timestamp + idx}>
-                    {new Date(h.timestamp).toLocaleTimeString()} — {h.result}
-                  </li>
-                ))}
-              </ul>
+          <div className={appStyles.controls}>
+            <button onClick={flipCoin} disabled={isFlipping} aria-disabled={isFlipping}>
+              {isFlipping ? 'Flipping...' : 'Flip Coin'}
+            </button>
+            <div className={appStyles.result} aria-live="polite">
+              {lastResult ? `Last: ${lastResult.toUpperCase()}` : 'No flips yet'}
             </div>
-          )}
+          </div>
         </div>
+
+        {history.length > 0 && (
+          <div className={appStyles.history}>
+            <h3>History</h3>
+            <ul>
+              {history.map((h, idx) => (
+                <li key={h.timestamp + idx}>
+                  {new Date(h.timestamp).toLocaleTimeString()} — {h.result}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

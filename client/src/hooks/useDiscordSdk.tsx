@@ -7,7 +7,7 @@ import React, {
   ReactNode,
 } from "react";
 import { DiscordSDK } from "@discord/embedded-app-sdk";
-import LoadingScreen from "../components/LoadingScreen";
+import LoadingScreen from "../components/loading-screen/LoadingScreen";
 
 export enum Status {
   Idle = "idle",

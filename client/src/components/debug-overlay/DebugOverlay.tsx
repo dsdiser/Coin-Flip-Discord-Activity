@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import styles from "../styles/DebugOverlay.module.css";
+import styles from "./DebugOverlay.module.css";
 
 export default function DebugOverlay(props: {
   status: string;
