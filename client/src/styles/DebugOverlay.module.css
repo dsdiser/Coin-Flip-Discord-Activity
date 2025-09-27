@@ -5,9 +5,9 @@
   z-index: 1200;
   height: 36px;
   border-radius: 8px;
-  background: rgba(0,0,0,0.6);
+  background: rgba(0, 0, 0, 0.6);
   color: #fff;
-  border: 1px solid rgba(255,255,255,0.06);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -22,11 +22,11 @@
   max-height: calc(100vh - 80px);
   overflow: auto;
   z-index: 1100;
-  background: rgba(20,20,20,0.9);
+  background: rgba(20, 20, 20, 0.9);
   color: #fff;
   border-radius: 10px;
   padding: 12px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
   transform-origin: top right;
   transition: transform 180ms ease, opacity 180ms ease;
   opacity: 0;
@@ -45,7 +45,17 @@
   text-align: left;
 }
 
-.debugClose{
+.headerRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.mt8 {
+  margin-top: 8px;
+}
+
+.debugClose {
   background: transparent;
   border: none;
   color: #ddd;
@@ -53,17 +63,25 @@
   cursor: pointer;
 }
 
-.debugPre{
+.debugPre {
   white-space: pre-wrap;
   max-height: 200px;
   overflow: auto;
   padding: 8px;
   border-radius: 6px;
-  background: rgba(255,255,255,0.02);
+  background: rgba(255, 255, 255, 0.02);
   margin: 8px 0 0 0;
 }
 
-@media (max-width: 480px){
-  .debugPanel { right: 8px; left: 8px; width: auto; top: 56px; }
-  .debugToggle { right: 8px; }
+@media (max-width: 480px) {
+  .debugPanel {
+    right: 8px;
+    left: 8px;
+    width: auto;
+    top: 56px;
+  }
+
+  .debugToggle {
+    right: 8px;
+  }
 }
