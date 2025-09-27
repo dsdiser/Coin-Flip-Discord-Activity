@@ -38,20 +38,15 @@ function CoinFlipApp() {
       coinRef.current.style.setProperty('--flip-rotation', `${total}deg`);
       coinRef.current.classList.remove(coinStyles.flipEnding);
 
-      // finalize function used by both event listeners and fallback
+      // Fallback timeout in case events don't fire.
       let fallback: number | undefined;
+      // finalize function used by both event listeners and fallback
       function finalize(ev?: AnimationEvent | TransitionEvent) {
-        // optional checks: if event exists, make sure it's the right one
-        if (ev) {
-          if (ev.type === 'animationend') {
-            const animEv = ev as AnimationEvent;
-            // our animation is named 'coin-flip' (or earlier 'coin-wobble'); accept either
-            if (animEv.animationName && !(animEv.animationName === 'coin-flip' || animEv.animationName === 'coin-wobble')) return;
-          }
-          if (ev.type === 'transitionend') {
-            const transEv = ev as TransitionEvent & { propertyName?: string };
-            if (transEv.propertyName && transEv.propertyName !== 'transform') return;
-          }
+        // Accept any animationend event (CSS Modules may mangle the keyframe name),
+        // but keep the transitionend filter for transform property.
+        if (ev && ev.type === 'transitionend') {
+          const transEv = ev as TransitionEvent & { propertyName?: string };
+          if (transEv.propertyName && transEv.propertyName !== 'transform') return;
         }
 
         setLastResult(result);
