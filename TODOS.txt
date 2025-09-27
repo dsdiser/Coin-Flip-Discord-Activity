@@ -1,6 +1,6 @@
 TODOS
 
-- Add coin flip
-- Add user profiles
+- Add multiple user profiles
+- Fix coin flip animation
 - Get assets for coin, bot, etc
 - Set up cloudflare worker fr fr
