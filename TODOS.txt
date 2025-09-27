@@ -1,6 +1,5 @@
 TODOS
 
-- Convert client to React
 - Add coin flip
 - Add user profiles
 - Get assets for coin, bot, etc

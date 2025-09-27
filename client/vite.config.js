@@ -14,7 +14,7 @@ export default defineConfig({
         ws: true,
       },
     },
-    allowedHosts: ['reservoir-cope-lexington-bags.trycloudflare.com'],
+    allowedHosts: ['license-proposal-witness-hydrocodone.trycloudflare.com'],
     hmr: {
       clientPort: 443,
     },
