@@ -1,8 +1,9 @@
 // filepath: client/src/main.tsx
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import ReactDOM from "react-dom/client";
 import "./style.css";
 import { DiscordContextProvider, useDiscordSdk } from "./hooks/useDiscordSdk";
+import DebugOverlay from "./components/DebugOverlay";
 
 const App: React.FC = () => {
   return (
@@ -15,24 +16,12 @@ const App: React.FC = () => {
 type Result = 'heads' | 'tails';
 
 function CoinFlipApp() {
-  const { session } = useDiscordSdk();
-  const [name, setName] = useState<string>('');
-  const [user, setUser] = useState<string | null>(null);
+  const { user, status, authenticated, accessToken, auth, error } = useDiscordSdk();
+  const userName = user?.username ?? null;
   const [isFlipping, setIsFlipping] = useState(false);
   const [lastResult, setLastResult] = useState<Result | null>(null);
   const [history, setHistory] = useState<Array<{ result: Result; timestamp: number }>>([]);
   const coinRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    // Try to prefill the user from an authenticated session if available
-    if ((session as any)?.user?.username) {
-      setUser((session as any).user.username);
-    }
-  }, [session]);
-
-  function userJoin() {
-    setUser(name.trim() || 'Guest');
-  }
 
   function flipCoin() {
     if (!user || isFlipping) return;
@@ -98,24 +87,22 @@ function CoinFlipApp() {
       }, 1400);
     }
   }
-
+  if (!user){
+    return (<div>Missing user object</div>)
+  }
   return (
     <div className="app">
+      <DebugOverlay
+        status={status}
+        authenticated={authenticated}
+        accessToken={accessToken}
+        error={error}
+        user={user}
+        auth={auth}
+      />
       <h1>Coin Flip</h1>
-
-      {!user ? (
-        <div className="join">
-          <input
-            aria-label="Display name"
-            placeholder="Enter your name (optional)"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-          <button onClick={userJoin}>Join as {name.trim() || 'Guest'}</button>
-        </div>
-      ) : (
         <div className="player">
-          <div>Joined as <strong>{user}</strong></div>
+          <div>Joined as <strong>{userName}</strong></div>
           <div className="coin-area">
             <div className="coin-container">
               <div className="coin" ref={coinRef} role="img" aria-label="coin">
@@ -157,7 +144,6 @@ function CoinFlipApp() {
             </div>
           )}
         </div>
-      )}
     </div>
   );
 }

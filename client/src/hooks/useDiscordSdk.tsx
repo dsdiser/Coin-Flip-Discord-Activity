@@ -7,6 +7,7 @@ import React, {
   ReactNode,
 } from "react";
 import { DiscordSDK } from "@discord/embedded-app-sdk";
+import LoadingScreen from "../components/LoadingScreen";
 
 export enum Status {
   Idle = "idle",
@@ -16,11 +17,22 @@ export enum Status {
   Error = "error",
 }
 
+interface DiscordUser {
+  id: string;
+  username: string;
+  discriminator?: string;
+  avatar?: string | null;
+  global_name?: string | null;
+}
+
+// Context exposes the authenticated `user` directly.
 interface DiscordContextValue {
   discordSdk?: any;
   accessToken?: string | null;
   authenticated: boolean;
-  session?: any;
+  // `user` contains the authenticated Discord user info (or null when unauthenticated)
+  user?: DiscordUser | null;
+  auth?: any;
   status: Status;
   error?: Error | null;
 }
@@ -40,14 +52,15 @@ export const DiscordContextProvider: React.FC<ProviderProps> = ({
   children,
   authenticate = false,
   scope = ["identify", "guilds"],
-  loadingScreen = null,
+  loadingScreen = <LoadingScreen />,
 }) => {
   const clientId = (import.meta as any).env?.VITE_DISCORD_CLIENT_ID;
   const sdkRef = useRef<any | undefined>(undefined);
   const [status, setStatus] = useState<Status>(Status.Idle);
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [authenticated, setAuthenticated] = useState(false);
-  const [session, setSession] = useState<any>(null);
+  const [user, setUser] = useState<DiscordUser | null>(null);
+  const [auth, setAuth] = useState<any | null>(null);
   const [error, setError] = useState<Error | null>(null);
 
   // Lazily create SDK (so it can be mocked/tested easier)
@@ -105,8 +118,11 @@ export const DiscordContextProvider: React.FC<ProviderProps> = ({
         if (!mounted) return;
 
         setAuthenticated(true);
-        setSession(auth?.session ?? null);
+        // Map auth payload to a simple user object (defensive fallback to auth.session.user)
+        const builtUser = auth ? (auth.user ?? auth.session?.user ?? null) : null;
+        setUser(builtUser);
         setStatus(Status.Authenticated);
+        setAuth(auth);
       } catch (err: any) {
         if (!mounted) return;
         setError(err instanceof Error ? err : new Error(String(err)));
@@ -125,7 +141,8 @@ export const DiscordContextProvider: React.FC<ProviderProps> = ({
     discordSdk: sdkRef.current,
     accessToken,
     authenticated,
-    session,
+    user,
+    auth,
     status,
     error,
   };
