@@ -6,6 +6,7 @@ import appStyles from "./components/App.module.css";
 import { DiscordContextProvider, DiscordUser, useDiscordSdk } from "./hooks/useDiscordSdk";
 import DebugOverlay from "./components/debug-overlay/DebugOverlay";
 import Coin, { CoinResult } from "./components/coin/coin";
+import BalatroEffect from "./components/balatro-background/balatro-effect";
 
 const App: React.FC = () => {
   return (
@@ -15,7 +16,7 @@ const App: React.FC = () => {
   );
 };
 
-function CoinFlipApp() {
+const CoinFlipApp: React.FC = () => {
   const { user: discordUser, status, authenticated, accessToken, auth, error } = useDiscordSdk();
   const [user, setUser] = useState<DiscordUser | null>(null);
 
@@ -49,44 +50,45 @@ function CoinFlipApp() {
     );
   }
   return (
-    <div className={appStyles.app}>
-      <DebugOverlay
-        status={status}
-        authenticated={authenticated}
-        accessToken={accessToken}
-        error={error}
-        user={user}
-        auth={auth}
-      />
-      <h1>Coin Flip</h1>
-      <div className={appStyles.player}>
-        <div>Joined as <strong>{userName}</strong></div>
-        <div className={appStyles.coinArea}>
-          <div>
+    <>
+      <div className={appStyles.app}>
+        <DebugOverlay
+          status={status}
+          authenticated={authenticated}
+          accessToken={accessToken}
+          error={error}
+          user={user}
+          auth={auth}
+        />
+        <div className={appStyles.player}>
+          <div>Joined as <strong>{userName}</strong></div>
+          <div className={appStyles.coinArea}>
             <Coin onComplete={onFlipResult} />
           </div>
-        </div>
 
-        {history.length > 0 && (
-          <div className={appStyles.history}>
-            <h3>History</h3>
-            <ul>
-              {history.map((h, idx) => (
-                <li key={h.timestamp + idx}>
-                  {new Date(h.timestamp).toLocaleTimeString()} — {h.result}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
+          {history.length > 0 && (
+            <div className={appStyles.history}>
+              <h3>History</h3>
+              <ul>
+                {history.map((h, idx) => (
+                  <li key={h.timestamp + idx}>
+                    {new Date(h.timestamp).toLocaleTimeString()} — {h.result}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </>
+
   );
 }
 
 const root = ReactDOM.createRoot(document.getElementById("app")!);
 root.render(
   <React.StrictMode>
+    <BalatroEffect />
     <App />
   </React.StrictMode>
 );

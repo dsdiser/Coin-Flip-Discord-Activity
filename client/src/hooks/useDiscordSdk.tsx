@@ -18,6 +18,16 @@ export enum Status {
   Error = "error",
 }
 
+const MOCK_DISCORD_CONTEXT_VALUE: DiscordContextValue = {
+  discordSdk: undefined,
+  accessToken: null,
+  authenticated: false,
+  user: null,
+  auth: undefined,
+  status: Status.Error,
+  error: new Error("Discord SDK not initialized"),
+}
+
 export interface DiscordUser {
   id: string;
   username: string;
@@ -25,6 +35,7 @@ export interface DiscordUser {
   avatar?: string | null;
   global_name?: string | null;
 }
+
 
 interface DiscordContextValue {
   discordSdk?: any;
@@ -157,10 +168,11 @@ export const DiscordContextProvider: React.FC<ProviderProps> = ({
   );
 };
 
-export function useDiscordSdk() {
+export function useDiscordSdk(): DiscordContextValue {
   const ctx = useContext(DiscordContext);
   if (!ctx) {
     console.warn("useDiscordSdk must be used within DiscordContextProvider");
+    return MOCK_DISCORD_CONTEXT_VALUE;
   }
   return ctx;
 }

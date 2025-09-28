@@ -14,7 +14,7 @@ export default defineConfig({
         ws: true,
       },
     },
-    allowedHosts: ['license-proposal-witness-hydrocodone.trycloudflare.com'],
+    allowedHosts: ['license-proposal-witness-hydrocodone.trycloudflare.com', 'localhost'],
     hmr: {
       clientPort: 443,
     },
