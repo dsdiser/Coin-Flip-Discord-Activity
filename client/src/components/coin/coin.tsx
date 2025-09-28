@@ -52,17 +52,13 @@ export const Coin: React.FC<CoinProps> = ({ onComplete, initial = "heads", class
     return result;
   }, [controls, isFlipping]);
 
-  const handleClick = useCallback(() => {
-    void flip();
-  }, [flip]);
-
   const frontLabel = useMemo(() => (current === "heads" ? "HEADS" : "TAILS"), [current]);
 
   return (
     <div className={`${styles.wrapper} ${className ?? ""}`}>
       <motion.div
         className={styles.coin}
-        onClick={handleClick}
+        onClick={flip}
         animate={controls}
         initial={{ rotateY: initial === "heads" ? 0 : 180 }}
         style={{ rotateY: initial === "heads" ? 0 : 180 }}
