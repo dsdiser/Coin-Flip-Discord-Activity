@@ -1,6 +1,6 @@
 /* App scoped styles (from style.css: app, player, join, controls, result, history, logo, #app/#auth) */
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: Helvetica, Arial, sans-serif;
   line-height: 1.5;
 }
 
@@ -14,15 +14,6 @@
   text-align: left;
 }
 
-.join input {
-  padding: 0.6em 0.8em;
-  margin-right: 0.6em;
-  border-radius: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  background: transparent;
-  color: inherit;
-}
-
 .controls {
   display: flex;
   flex-direction: column;
@@ -34,13 +25,10 @@
   font-weight: 600;
 }
 
-.history {
-  margin-top: 1rem;
-}
-
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
+.coinArea {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1.2rem;
 }

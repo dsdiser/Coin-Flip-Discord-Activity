@@ -4,8 +4,8 @@
 }
 
 .coin {
-  width: 140px;
-  height: 140px;
+  width: 20vw;
+  height: 20vw;
   position: relative;
   transform-style: preserve-3d;
   cursor: pointer;

@@ -3,7 +3,6 @@ import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom/client";
 import "./styles/global.css";
 import appStyles from "./components/App.module.css";
-import coinStyles from "./components/Coin.module.css";
 import { DiscordContextProvider, DiscordUser, useDiscordSdk } from "./hooks/useDiscordSdk";
 import DebugOverlay from "./components/debug-overlay/DebugOverlay";
 import Coin, { CoinResult } from "./components/coin/coin";
@@ -16,13 +15,11 @@ const App: React.FC = () => {
   );
 };
 
-type Result = 'heads' | 'tails';
-
 function CoinFlipApp() {
   const { user: discordUser, status, authenticated, accessToken, auth, error } = useDiscordSdk();
   const [user, setUser] = useState<DiscordUser | null>(null);
 
-  const [history, setHistory] = useState<Array<{ result: Result; timestamp: number }>>([]);
+  const [history, setHistory] = useState<Array<{ result: CoinResult; timestamp: number }>>([]);
   const userName = user?.username ?? null;
 
   useEffect(() => {
@@ -32,7 +29,7 @@ function CoinFlipApp() {
   }, [discordUser]);
 
   function onFlipResult(result: CoinResult) {
-    setHistory((prev) => [...prev, { result: result as Result, timestamp: Date.now() }]);
+    setHistory((prev) => [...prev, { result: result as CoinResult, timestamp: Date.now() }]);
   }
 
 
@@ -64,8 +61,8 @@ function CoinFlipApp() {
       <h1>Coin Flip</h1>
       <div className={appStyles.player}>
         <div>Joined as <strong>{userName}</strong></div>
-        <div className={coinStyles.coinArea}>
-          <div className={coinStyles.coinContainer}>
+        <div className={appStyles.coinArea}>
+          <div>
             <Coin onComplete={onFlipResult} />
           </div>
         </div>

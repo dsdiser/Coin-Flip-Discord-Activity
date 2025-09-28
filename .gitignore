@@ -18,6 +18,8 @@ dist
 dist-ssr
 *.local
 
+.github
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

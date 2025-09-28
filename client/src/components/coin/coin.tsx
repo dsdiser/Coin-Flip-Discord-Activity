@@ -13,6 +13,9 @@ export interface CoinProps {
   className?: string;
 }
 
+const ROTATION_MIN = 10; // Minimum number of rotations
+const ROTATION_MAX = 30; // Maximum number of rotations
+
 /**
  * Simple coin component that flips on click and returns a random result.
  * Uses framer-motion for the flip animation and a CSS module for visuals.
@@ -26,15 +29,15 @@ export const Coin: React.FC<CoinProps> = ({ onComplete, initial = "heads", class
     if (isFlipping) return;
     setIsFlipping(true);
 
-    // Decide random result ahead of time so we can land on it
+    // Decide random result
     const result: CoinResult = Math.random() < 0.5 ? "heads" : "tails";
 
-    // Choose a random number of full rotations for variety
-    // TODO: FIX bug in flip not ending on the correct side. We should set the num of rotations based on current front face and result.
-    const rotations = 10 + Math.floor(Math.random() * 20); // 10..30
+    let rotations = ROTATION_MIN + Math.floor(Math.random() * (ROTATION_MAX - ROTATION_MIN)); // 10..30
+    if (rotations % 2 === 0 && result !== current) {
+      rotations += 1;
+    }
 
-    // Animate a 3D Y rotation that ends depending on the result.
-    // We'll animate to rotationY where 0 = heads, 180 = tails
+    // animate to rotationY where 0 = heads, 180 = tails
     const endRotation = result === "heads" ? 360 * rotations : 180 + 360 * rotations;
 
     // Start animation
@@ -52,7 +55,7 @@ export const Coin: React.FC<CoinProps> = ({ onComplete, initial = "heads", class
     return result;
   }, [controls, isFlipping]);
 
-  const frontLabel = useMemo(() => (current === "heads" ? "HEADS" : "TAILS"), [current]);
+  const frontLabel = useMemo(() => (current === "heads" ? "HEADS" : "TAILS"), []);
 
   return (
     <div className={`${styles.wrapper} ${className ?? ""}`}>
@@ -62,7 +65,8 @@ export const Coin: React.FC<CoinProps> = ({ onComplete, initial = "heads", class
         animate={controls}
         initial={{ rotateY: initial === "heads" ? 0 : 180 }}
         style={{ rotateY: initial === "heads" ? 0 : 180 }}
-        whileTap={{ scale: 0.95 }}
+        whileHover={{ scale: 1.1, }}
+        whileTap={{ scale: 1.25, rotate: -5, transition: { duration: 0.2, scale: { type: "spring" } } }}
         role="button"
         aria-pressed={isFlipping}
         tabIndex={0}
