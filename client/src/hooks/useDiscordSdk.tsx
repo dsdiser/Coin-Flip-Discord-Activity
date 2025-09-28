@@ -8,6 +8,7 @@ import React, {
 } from "react";
 import { DiscordSDK } from "@discord/embedded-app-sdk";
 import LoadingScreen from "../components/loading-screen/LoadingScreen";
+import { OAuthScopes } from "@discord/embedded-app-sdk/output/schema/types";
 
 export enum Status {
   Idle = "idle",
@@ -17,7 +18,7 @@ export enum Status {
   Error = "error",
 }
 
-interface DiscordUser {
+export interface DiscordUser {
   id: string;
   username: string;
   discriminator?: string;
@@ -25,14 +26,12 @@ interface DiscordUser {
   global_name?: string | null;
 }
 
-// Context exposes the authenticated `user` directly.
 interface DiscordContextValue {
   discordSdk?: any;
   accessToken?: string | null;
   authenticated: boolean;
-  // `user` contains the authenticated Discord user info (or null when unauthenticated)
-  user?: DiscordUser | null;
-  auth?: any;
+  user: DiscordUser | null;
+  auth?: ReturnType<typeof DiscordSDK.prototype.commands.authenticate>;
   status: Status;
   error?: Error | null;
 }
@@ -44,7 +43,7 @@ const DiscordContext = createContext<DiscordContextValue | undefined>(
 interface ProviderProps {
   children: ReactNode;
   authenticate?: boolean;
-  scope?: string[];
+  scope?: OAuthScopes[];
   loadingScreen?: ReactNode;
 }
 
@@ -55,7 +54,7 @@ export const DiscordContextProvider: React.FC<ProviderProps> = ({
   loadingScreen = <LoadingScreen />,
 }) => {
   const clientId = (import.meta as any).env?.VITE_DISCORD_CLIENT_ID;
-  const sdkRef = useRef<any | undefined>(undefined);
+  const sdkRef = useRef<DiscordSDK | undefined>(undefined);
   const [status, setStatus] = useState<Status>(Status.Idle);
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [authenticated, setAuthenticated] = useState(false);
@@ -64,8 +63,14 @@ export const DiscordContextProvider: React.FC<ProviderProps> = ({
   const [error, setError] = useState<Error | null>(null);
 
   // Lazily create SDK (so it can be mocked/tested easier)
-  if (!sdkRef.current && clientId) {
-    sdkRef.current = new DiscordSDK(clientId);
+  if (!sdkRef.current && clientId && status != Status.Error) {
+    try {
+      sdkRef.current = new DiscordSDK(clientId);
+    } catch (err) {
+      console.error("Failed to initialize Discord SDK", err);
+      setError(err instanceof Error ? err : new Error(String(err)));
+      setStatus(Status.Error);
+    }
   }
 
   useEffect(() => {
@@ -73,8 +78,6 @@ export const DiscordContextProvider: React.FC<ProviderProps> = ({
 
     async function init() {
       if (!sdkRef.current) {
-        setError(new Error("Missing VITE_DISCORD_CLIENT_ID"));
-        setStatus(Status.Error);
         return;
       }
 
@@ -118,9 +121,7 @@ export const DiscordContextProvider: React.FC<ProviderProps> = ({
         if (!mounted) return;
 
         setAuthenticated(true);
-        // Map auth payload to a simple user object (defensive fallback to auth.session.user)
-        const builtUser = auth ? (auth.user ?? auth.session?.user ?? null) : null;
-        setUser(builtUser);
+        setUser(auth ? auth.user : null);
         setStatus(Status.Authenticated);
         setAuth(auth);
       } catch (err: any) {
@@ -159,7 +160,7 @@ export const DiscordContextProvider: React.FC<ProviderProps> = ({
 export function useDiscordSdk() {
   const ctx = useContext(DiscordContext);
   if (!ctx) {
-    throw new Error("useDiscordSdk must be used within DiscordContextProvider");
+    console.warn("useDiscordSdk must be used within DiscordContextProvider");
   }
   return ctx;
 }

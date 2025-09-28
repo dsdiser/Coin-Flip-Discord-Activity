@@ -1,11 +1,12 @@
 // filepath: client/src/main.tsx
-import React, { useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom/client";
 import "./styles/global.css";
 import appStyles from "./components/App.module.css";
 import coinStyles from "./components/Coin.module.css";
-import { DiscordContextProvider, useDiscordSdk } from "./hooks/useDiscordSdk";
+import { DiscordContextProvider, DiscordUser, useDiscordSdk } from "./hooks/useDiscordSdk";
 import DebugOverlay from "./components/debug-overlay/DebugOverlay";
+import Coin, { CoinResult } from "./components/coin/coin";
 
 const App: React.FC = () => {
   return (
@@ -18,74 +19,37 @@ const App: React.FC = () => {
 type Result = 'heads' | 'tails';
 
 function CoinFlipApp() {
-  const { user, status, authenticated, accessToken, auth, error } = useDiscordSdk();
-  const userName = user?.username ?? null;
-  const [isFlipping, setIsFlipping] = useState(false);
-  const [lastResult, setLastResult] = useState<Result | null>(null);
+  const { user: discordUser, status, authenticated, accessToken, auth, error } = useDiscordSdk();
+  const [user, setUser] = useState<DiscordUser | null>(null);
+
   const [history, setHistory] = useState<Array<{ result: Result; timestamp: number }>>([]);
-  const coinRef = useRef<HTMLDivElement | null>(null);
+  const userName = user?.username ?? null;
 
-  function flipCoin() {
-    if (!user || isFlipping) return;
-    const result: Result = Math.random() < 0.5 ? 'heads' : 'tails';
-    setIsFlipping(true);
-
-    if (coinRef.current) {
-      const spins = 4;
-      const base = 360 * spins;
-      const offset = result === 'heads' ? 0 : 180;
-      const total = base + offset;
-      coinRef.current.style.setProperty('--flip-rotation', `${total}deg`);
-      coinRef.current.classList.remove(coinStyles.flipEnding);
-
-      // Fallback timeout in case events don't fire.
-      let fallback: number | undefined;
-      // finalize function used by both event listeners and fallback
-      function finalize(ev?: AnimationEvent | TransitionEvent) {
-        // Accept any animationend event (CSS Modules may mangle the keyframe name),
-        // but keep the transitionend filter for transform property.
-        if (ev && ev.type === 'transitionend') {
-          const transEv = ev as TransitionEvent & { propertyName?: string };
-          if (transEv.propertyName && transEv.propertyName !== 'transform') return;
-        }
-
-        setLastResult(result);
-        setHistory((h) => [{ result, timestamp: Date.now() }, ...h]);
-        setIsFlipping(false);
-        if (coinRef.current) {
-          coinRef.current.classList.remove(coinStyles.flipping);
-          coinRef.current.classList.add(coinStyles.flipEnding);
-          coinRef.current.removeEventListener('animationend', wrapped as any);
-          coinRef.current.removeEventListener('transitionend', wrapped as any);
-        }
-        if (fallback) clearTimeout(fallback);
-      }
-
-      // wrapper clears fallback then delegates to finalize
-      function wrapped(ev?: AnimationEvent | TransitionEvent) {
-        if (fallback) clearTimeout(fallback);
-        return finalize(ev);
-      }
-
-      // attach listeners once; remove previous listeners for safety
-      coinRef.current.removeEventListener('animationend', wrapped as any);
-      coinRef.current.removeEventListener('transitionend', wrapped as any);
-      coinRef.current.addEventListener('animationend', wrapped as any, { once: true } as any);
-      coinRef.current.addEventListener('transitionend', wrapped as any, { once: true } as any);
-
-      // start the animation by toggling class
-      // force reflow
-      coinRef.current.offsetWidth;
-      coinRef.current.classList.add(coinStyles.flipping);
-
-      // fallback timeout in case events don't fire
-      fallback = window.setTimeout(() => {
-        wrapped();
-      }, 1400);
+  useEffect(() => {
+    if (discordUser) {
+      setUser(discordUser);
     }
+  }, [discordUser]);
+
+  function onFlipResult(result: CoinResult) {
+    setHistory((prev) => [...prev, { result: result as Result, timestamp: Date.now() }]);
   }
+
+
+  function setMockUser() {
+    setUser({
+      id: 'mock-id',
+      username: 'MockUser',
+    });
+  }
+
   if (!user) {
-    return (<div>Missing user object</div>)
+    return (
+      <div>
+        <div>Missing user object</div>
+        <button onClick={setMockUser}>Flip locally</button>
+      </div>
+    );
   }
   return (
     <div className={appStyles.app}>
@@ -102,29 +66,7 @@ function CoinFlipApp() {
         <div>Joined as <strong>{userName}</strong></div>
         <div className={coinStyles.coinArea}>
           <div className={coinStyles.coinContainer}>
-            <div className={coinStyles.coin} ref={coinRef} role="img" aria-label="coin">
-              <div className={`${coinStyles.face} ${coinStyles.heads}`} aria-hidden>
-                <svg width="72" height="72" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <circle cx="12" cy="12" r="10" fill="#ffb300" />
-                  <text x="50%" y="55%" textAnchor="middle" fontSize="10" fontWeight="700" fill="#5a3a00">H</text>
-                </svg>
-              </div>
-              <div className={`${coinStyles.face} ${coinStyles.tails}`} aria-hidden>
-                <svg width="72" height="72" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <circle cx="12" cy="12" r="10" fill="#e0e0e0" />
-                  <text x="50%" y="55%" textAnchor="middle" fontSize="10" fontWeight="700" fill="#333">T</text>
-                </svg>
-              </div>
-            </div>
-          </div>
-
-          <div className={appStyles.controls}>
-            <button onClick={flipCoin} disabled={isFlipping} aria-disabled={isFlipping}>
-              {isFlipping ? 'Flipping...' : 'Flip Coin'}
-            </button>
-            <div className={appStyles.result} aria-live="polite">
-              {lastResult ? `Last: ${lastResult.toUpperCase()}` : 'No flips yet'}
-            </div>
+            <Coin onComplete={onFlipResult} />
           </div>
         </div>
 
