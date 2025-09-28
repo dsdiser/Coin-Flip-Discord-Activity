@@ -1,0 +1,44 @@
+.wrapper {
+  display: inline-block;
+  perspective: 1000px;
+}
+
+.coin {
+  width: 140px;
+  height: 140px;
+  position: relative;
+  transform-style: preserve-3d;
+  cursor: pointer;
+  user-select: none;
+  border-radius: 999px;
+  /* make it round like a coin */
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border-radius: 999px;
+  font-weight: 700;
+  color: white;
+  font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+}
+
+.front {
+  background: linear-gradient(180deg, #ffd166, #f7a400);
+}
+
+.back {
+  background: linear-gradient(180deg, #00b4d8, #0077b6);
+  transform: rotateY(180deg);
+}
+
+.label {
+  font-size: 20px;
+  letter-spacing: 1px;
+}
