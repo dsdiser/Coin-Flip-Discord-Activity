@@ -89,6 +89,6 @@ const root = ReactDOM.createRoot(document.getElementById("app")!);
 root.render(
   <React.StrictMode>
     <BalatroEffect />
-    <App />
+    {/* <App /> */}
   </React.StrictMode>
 );
