@@ -135,6 +135,9 @@ export default function BalatroBackground({
   isRotate = false,
   mouseInteraction = true
 }: BalatroProps) {
+  // TODO: Find a way to modify props inside this component without fully rerendering the component.
+  // Possible solution is to add event listeners for different props we want to change. 
+  // Another option is to move the cleanup code into a separate function 
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -200,6 +203,7 @@ export default function BalatroBackground({
     }
     container.addEventListener('mousemove', handleMouseMove);
 
+    // Cleanup on unmount
     return () => {
       cancelAnimationFrame(animationFrameId);
       window.removeEventListener('resize', resize);

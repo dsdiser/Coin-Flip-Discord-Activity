@@ -9,15 +9,27 @@ import Coin, { CoinResult } from "./components/coin/coin";
 import BalatroBackground from "./components/balatro-background/BalatroBackground";
 
 const App: React.FC = () => {
+  const [spinAmount, setSpinAmount] = useState<number>(-2);
+
   const inIframe = window.self !== window.top;
   const shouldAuth = inIframe; // Only authenticate if in an iframe (i.e. in Discord)
 
+  const setSpin = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSpinAmount(parseFloat(e.target.value));
+  }
+
   return (
     <>
-      <BalatroBackground color1="#476952" color2="#404040" color3="#142021" pixelFilter={500} />
-      <DiscordContextProvider authenticate={shouldAuth} scope={["identify", "guilds", "guilds.members.read"]}>
-        <CoinFlipApp />
-      </DiscordContextProvider>
+      <BalatroBackground color1="#476952" color2="#404040" color3="#142021" pixelFilter={500} spinRotation={spinAmount} />
+      {/* <div>
+        <label>Background Spin Rotation: </label>
+        <input onChange={setSpin} type="number" value={spinAmount} />
+      </div> */}
+      <div>
+        <DiscordContextProvider authenticate={shouldAuth} scope={["identify", "guilds", "guilds.members.read"]}>
+          <CoinFlipApp />
+        </DiscordContextProvider>
+      </div>
     </>
   );
 };
