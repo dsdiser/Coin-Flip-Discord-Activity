@@ -1,6 +1,11 @@
 TODOS
 
 - Add multiple user profiles
-- Fix coin flip animation
+- Slow down the coin flip before animation finishes
+- Change background to the color of whatever side
 - Get assets for coin, bot, etc
 - Set up cloudflare worker fr fr
+
+
+Done:
+- Fix coin flip animation

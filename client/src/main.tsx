@@ -6,7 +6,7 @@ import appStyles from "./components/App.module.css";
 import { DiscordContextProvider, DiscordUser, useDiscordSdk } from "./hooks/useDiscordSdk";
 import DebugOverlay from "./components/debug-overlay/DebugOverlay";
 import Coin, { CoinResult } from "./components/coin/coin";
-import BalatroEffect from "./components/balatro-background/balatro-effect";
+import BalatroBackground from "./components/balatro-background/BalatroBackground";
 
 const App: React.FC = () => {
   return (
@@ -88,7 +88,7 @@ const CoinFlipApp: React.FC = () => {
 const root = ReactDOM.createRoot(document.getElementById("app")!);
 root.render(
   <React.StrictMode>
-    <BalatroEffect />
-    {/* <App /> */}
+    <BalatroBackground pixelFilter={500} />
+    <App />
   </React.StrictMode>
 );

@@ -1,7 +1,7 @@
 // Modified from https://reactbits.dev/backgrounds/balatro
 import { Renderer, Program, Mesh, Triangle } from 'ogl';
 import { useEffect, useRef } from 'react';
-import styles from './balatro-effect.module.css';
+import styles from './BalatroBackground.module.css';
 
 interface BalatroProps {
   spinRotation?: number;
@@ -120,7 +120,7 @@ void main() {
 }
 `;
 
-export default function Balatro({
+export default function BalatroBackground({
   spinRotation = -2.0,
   spinSpeed = 7.0,
   offset = [0.0, 0.0],
@@ -133,7 +133,7 @@ export default function Balatro({
   pixelFilter = 745.0,
   spinEase = 1.0,
   isRotate = false,
-  mouseInteraction = false
+  mouseInteraction = true
 }: BalatroProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -189,10 +189,6 @@ export default function Balatro({
       renderer.render({ scene: mesh });
     }
     animationFrameId = requestAnimationFrame(update);
-    // Ensure the container is empty before appending the canvas. React StrictMode
-    // may mount/unmount components twice in development which can leave stale
-    // canvases in the DOM and cause multiple contexts to be created.
-    // while (container.firstChild) container.removeChild(container.firstChild);
     container.appendChild(gl.canvas);
 
     function handleMouseMove(e: MouseEvent) {
@@ -208,21 +204,8 @@ export default function Balatro({
       cancelAnimationFrame(animationFrameId);
       window.removeEventListener('resize', resize);
       container.removeEventListener('mousemove', handleMouseMove);
-      // Remove the canvas only if it's still attached to this container.
-      if (gl.canvas && container.contains(gl.canvas)) {
-        container.removeChild(gl.canvas);
-      }
-      // Avoid forcefully losing the WebGL context - that can trigger
-      // "WebGL context was lost" messages in the console. Let the browser
-      // clean up contexts naturally. If the renderer exposes a dispose
-      // method, call it gracefully.
-      try {
-        if ((renderer as any).dispose) {
-          (renderer as any).dispose();
-        }
-      } catch (e) {
-        // ignore disposal errors
-      }
+      container.removeChild(gl.canvas);
+      gl.getExtension('WEBGL_lose_context')?.loseContext();
     };
   }, [
     spinRotation,

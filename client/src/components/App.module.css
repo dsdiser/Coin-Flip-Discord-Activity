@@ -6,19 +6,15 @@
 
 .app {
   color: inherit;
+  display: flex;
+  max-width: 80%;
+  place-self: center;
 }
 
 .player {
   max-width: 900px;
   margin: 0 auto;
   text-align: left;
-}
-
-.controls {
-  display: flex;
-  flex-direction: column;
-  gap: 0.8rem;
-  align-items: flex-start;
 }
 
 .result {
