@@ -74,7 +74,7 @@ export const DiscordContextProvider: React.FC<ProviderProps> = ({
   const [error, setError] = useState<Error | null>(null);
 
   // Lazily create SDK (so it can be mocked/tested easier)
-  if (!sdkRef.current && clientId && status != Status.Error) {
+  if (!sdkRef.current && clientId && status != Status.Error && authenticate) {
     try {
       sdkRef.current = new DiscordSDK(clientId);
     } catch (err) {

@@ -9,10 +9,16 @@ import Coin, { CoinResult } from "./components/coin/coin";
 import BalatroBackground from "./components/balatro-background/BalatroBackground";
 
 const App: React.FC = () => {
+  const inIframe = window.self !== window.top;
+  const shouldAuth = inIframe; // Only authenticate if in an iframe (i.e. in Discord)
+
   return (
-    <DiscordContextProvider authenticate={true} scope={["identify", "guilds", "guilds.members.read"]}>
-      <CoinFlipApp />
-    </DiscordContextProvider>
+    <>
+      <BalatroBackground color1="#476952" color2="#404040" color3="#142021" pixelFilter={500} />
+      <DiscordContextProvider authenticate={shouldAuth} scope={["identify", "guilds", "guilds.members.read"]}>
+        <CoinFlipApp />
+      </DiscordContextProvider>
+    </>
   );
 };
 
@@ -88,7 +94,6 @@ const CoinFlipApp: React.FC = () => {
 const root = ReactDOM.createRoot(document.getElementById("app")!);
 root.render(
   <React.StrictMode>
-    <BalatroBackground pixelFilter={500} />
     <App />
   </React.StrictMode>
 );
