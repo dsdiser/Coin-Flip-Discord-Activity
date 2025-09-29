@@ -15,6 +15,9 @@ Client (UI):
 - React - Typescript
 - @discord/embedded-app-sdk
 - Vite (dev)
+- ojs (for background animation)
+- Framer Motion (for coin animation)
+- random.js (prng)
 
 Server:
 - Express

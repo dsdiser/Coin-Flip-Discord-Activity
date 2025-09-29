@@ -1,6 +1,9 @@
 import React, { useCallback, useMemo, useState } from "react";
 import { motion, useAnimation } from 'motion/react'
+import { MersenneTwister19937, integer, real } from 'random-js';
 import styles from "./Coin.module.css";
+import { useAtomValue } from "jotai";
+import { seedAtom } from "../../state/websocketAtoms";
 
 export type CoinResult = "heads" | "tails";
 
@@ -22,17 +25,18 @@ const ROTATION_MAX = 30; // Maximum number of rotations
  */
 export const Coin: React.FC<CoinProps> = ({ onComplete, initial = "heads", className }) => {
   const controls = useAnimation();
+  const seed = useAtomValue(seedAtom);
   const [current, setCurrent] = useState<CoinResult>(initial);
   const [isFlipping, setIsFlipping] = useState(false);
 
   const flip = useCallback(async () => {
-    if (isFlipping) return;
+    if (isFlipping || !seed) return;
     setIsFlipping(true);
-
+    const mt = MersenneTwister19937.seed(seed);
     // Decide random result
-    const result: CoinResult = Math.random() < 0.5 ? "heads" : "tails";
+    const result: CoinResult = integer(0, 1)(mt) ? "heads" : "tails";
 
-    let rotations = ROTATION_MIN + Math.floor(Math.random() * (ROTATION_MAX - ROTATION_MIN)); // 10..30
+    let rotations = integer(ROTATION_MIN, ROTATION_MAX)(mt);// 10..30
     if (rotations % 2 === 0 && result !== current) {
       rotations += 1;
     }
@@ -43,7 +47,7 @@ export const Coin: React.FC<CoinProps> = ({ onComplete, initial = "heads", class
     // Start animation
     await controls.start({
       rotateY: endRotation,
-      transition: { duration: 1.0 + Math.random() * 0.6, ease: [0.2, 0.8, 0.2, 1] },
+      transition: { duration: 1.0 + real(0, 1)(mt) * 0.6, ease: [0.2, 0.8, 0.2, 1] },
     });
 
     // Normalize the displayed side and reset rotation to a safe value to avoid growing numbers

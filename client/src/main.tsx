@@ -4,6 +4,9 @@ import ReactDOM from "react-dom/client";
 import "./styles/global.css";
 import appStyles from "./components/App.module.css";
 import { DiscordContextProvider, DiscordUser, useDiscordSdk } from "./hooks/useDiscordSdk";
+import { Provider as JotaiProvider, useAtom } from 'jotai';
+import useWebsocket from './hooks/useWebsocket';
+import { seedAtom } from './state/websocketAtoms';
 import DebugOverlay from "./components/debug-overlay/DebugOverlay";
 import Coin, { CoinResult } from "./components/coin/coin";
 import BalatroBackground from "./components/balatro-background/BalatroBackground";
@@ -40,6 +43,8 @@ const CoinFlipApp: React.FC = () => {
 
   const [history, setHistory] = useState<Array<{ result: CoinResult; timestamp: number }>>([]);
   const userName = user?.username ?? null;
+  const { send } = useWebsocket('demo-room', 'ws://localhost:3002');
+  const [, setSeed] = useAtom(seedAtom as any);
 
   useEffect(() => {
     if (discordUser) {
@@ -80,6 +85,14 @@ const CoinFlipApp: React.FC = () => {
         />
         <div className={appStyles.player}>
           <div>Joined as <strong>{userName}</strong></div>
+          <div style={{ marginTop: 8 }}>
+            <label>Host actions: </label>
+            <button onClick={() => {
+              const s = Math.floor(Math.random() * 1000000);
+              setSeed(s);
+              send({ type: 'flip:start', roomId: 'demo-room', seed: s, from: user?.id, timestamp: Date.now() });
+            }}>Flip (host)</button>
+          </div>
           <div className={appStyles.coinArea}>
             <Coin onComplete={onFlipResult} />
           </div>
@@ -106,6 +119,8 @@ const CoinFlipApp: React.FC = () => {
 const root = ReactDOM.createRoot(document.getElementById("app")!);
 root.render(
   <React.StrictMode>
-    <App />
+    <JotaiProvider>
+      <App />
+    </JotaiProvider>
   </React.StrictMode>
 );
