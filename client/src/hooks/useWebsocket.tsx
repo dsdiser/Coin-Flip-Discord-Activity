@@ -5,10 +5,9 @@ import {
   IncomingMessage,
   OutgoingMessage,
   MessageType,
-  seedAtom,
   FlipStartMessage,
 } from '../state/websocketAtoms';
-import { startFlipAtom } from '../state/coinAtoms';
+import { seedAtom, startFlipAtom } from '../state/coinAtoms';
 
 export function useWebsocket(
   roomId = 'default-room',

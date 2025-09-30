@@ -1,10 +1,9 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { motion, useAnimation } from 'motion/react';
 import { MersenneTwister19937, integer, real } from 'random-js';
 import styles from './Coin.module.css';
 import { useAtom, useAtomValue } from 'jotai';
-import { seedAtom } from '../../state/websocketAtoms';
-import { startFlipAtom, useStartFlipListener } from '../../state/coinAtoms';
+import { startFlipAtom, seedAtom } from '../../state/coinAtoms';
 
 export type CoinResult = 'heads' | 'tails';
 
@@ -66,16 +65,12 @@ export const Coin: React.FC<CoinProps> = ({ onFlip, onComplete, initial = 'heads
   }, [controls, isFlipping, seed]);
 
   // Listen for startFlip changes (from websocket), then trigger flip
-  useStartFlipListener(
-    useCallback(
-      async (newVal) => {
-        if (!newVal) return;
-        await flip();
-        setStartFlip(false);
-      },
-      [flip, setStartFlip]
-    )
-  );
+  useEffect(() => {
+    if (startFlip) {
+      setStartFlip(false);
+      flip();
+    }
+  }, [startFlip, flip, setStartFlip]);
 
   const frontLabel = useMemo(() => (current === 'heads' ? 'HEADS' : 'TAILS'), []);
 

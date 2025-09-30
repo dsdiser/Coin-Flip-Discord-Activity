@@ -4,16 +4,16 @@ import ReactDOM from 'react-dom/client';
 import './styles/global.css';
 import appStyles from './components/App.module.css';
 import { DiscordContextProvider, DiscordUser, useDiscordSdk } from './hooks/useDiscordSdk';
-import { Provider as JotaiProvider, useAtom, useAtomValue } from 'jotai';
+import { Provider as JotaiProvider, useAtom, useAtomValue, useSetAtom } from 'jotai';
 import useWebsocket from './hooks/useWebsocket';
-import { seedAtom } from './state/websocketAtoms';
 import DebugOverlay from './components/debug-overlay/DebugOverlay';
 import Coin, { CoinResult } from './components/coin/coin';
 import BalatroBackground from './components/balatro-background/BalatroBackground';
 import { spinAmountAtom } from './state/backgroundAtoms';
+import { setRandomSeedAtom, seedAtom } from './state/coinAtoms';
 
 const App: React.FC = () => {
-  const [spinAmount, setSpinAmount] = useAtom(spinAmountAtom);
+  const [spinAmount, _setSpinAmount] = useAtom(spinAmountAtom);
 
   const inIframe = window.self !== window.top;
   const shouldAuth = inIframe; // Only authenticate if in an iframe (i.e. in Discord)
@@ -48,12 +48,12 @@ const CoinFlipApp: React.FC = () => {
     instanceId,
   } = useDiscordSdk();
   const [user, setUser] = useState<DiscordUser | null>(null);
-
   const [history, setHistory] = useState<Array<{ result: CoinResult; timestamp: number }>>([]);
-  const userName = user?.username ?? null;
-  const { send, connectionStatus } = useWebsocket(instanceId);
   const seed = useAtomValue(seedAtom);
+  const setRandomSeed = useSetAtom(setRandomSeedAtom);
+  const { send, connectionStatus } = useWebsocket(instanceId);
 
+  const userName = user?.username ?? null;
   useEffect(() => {
     if (discordUser) {
       setUser(discordUser);
@@ -61,17 +61,16 @@ const CoinFlipApp: React.FC = () => {
   }, [discordUser]);
 
   function onFlipResult(result: CoinResult) {
+    setRandomSeed();
     setHistory((prev) => [...prev, { result: result as CoinResult, timestamp: Date.now() }]);
   }
 
   const handleFlipSend = () => {
     if (!user) return;
-    let newSeed = 0;
-    const flipSeed = seed ?? newSeed;
     send({
       type: 'flip:start',
       roomId: 'demo-room',
-      seed: flipSeed,
+      seed: seed,
       from: user?.id,
       timestamp: Date.now(),
     });

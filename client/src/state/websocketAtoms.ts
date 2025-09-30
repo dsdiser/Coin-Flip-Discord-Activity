@@ -1,4 +1,5 @@
 import { atom } from 'jotai';
+import { seedAtom } from './coinAtoms';
 
 export enum MessageType {
   Join = 'join',
@@ -48,10 +49,6 @@ export const incomingMessageAtom = atom<IncomingMessage | null>(null);
 // Message history atom - append every incoming message (keeps small history)
 export const messageHistoryAtom = atom<IncomingMessage[]>([]);
 
-// Seed atom (for coin flip animation)
-const seed = Math.floor(Math.random() * 1000000);
-export const seedAtom = atom<number>(seed);
-
 // Derived atom: last message
 export const lastMessageAtom = atom<IncomingMessage | null>((get) => {
   const history = get(messageHistoryAtom);
@@ -64,9 +61,4 @@ export const pushIncomingAtom = atom(null, (get, set, incoming: IncomingMessage)
   const prev = get(messageHistoryAtom);
   // keep last 20 messages
   set(messageHistoryAtom, [...prev, incoming].slice(-20));
-  // If message is FlipStartMessage, set seed
-  if (incoming && (incoming as FlipStartMessage).type === MessageType.FlipStart) {
-    const flip = incoming as FlipStartMessage;
-    set(seedAtom, flip.seed);
-  }
 });
