@@ -57,7 +57,7 @@ export const Coin: React.FC<CoinProps> = ({ onComplete, initial = "heads", class
 
     onComplete(result);
     return result;
-  }, [controls, isFlipping]);
+  }, [controls, isFlipping, seed]);
 
   const frontLabel = useMemo(() => (current === "heads" ? "HEADS" : "TAILS"), []);
 

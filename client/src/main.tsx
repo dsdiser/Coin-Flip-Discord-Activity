@@ -88,9 +88,9 @@ const CoinFlipApp: React.FC = () => {
           <div style={{ marginTop: 8 }}>
             <label>Host actions: </label>
             <button onClick={() => {
-              const s = Math.floor(Math.random() * 1000000);
-              setSeed(s);
-              send({ type: 'flip:start', roomId: 'demo-room', seed: s, from: user?.id, timestamp: Date.now() });
+              const seed = Math.floor(Math.random() * 1000000);
+              setSeed(seed);
+              send({ type: 'flip:start', roomId: 'demo-room', seed, from: user?.id, timestamp: Date.now() });
             }}>Flip (host)</button>
           </div>
           <div className={appStyles.coinArea}>
