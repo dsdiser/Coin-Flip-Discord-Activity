@@ -1,5 +1,5 @@
 TODOS
-- Write websocket impl
+- Add spinning when animation is playing
 - Add multiple user profiles
 - Slow down the coin flip before animation finishes
 - Change background to the color of whatever side
@@ -9,3 +9,4 @@ TODOS
 
 Done:
 - Fix coin flip animation
+- Write websocket impl

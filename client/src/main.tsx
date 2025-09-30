@@ -103,13 +103,6 @@ const CoinFlipApp: React.FC = () => {
           websocketStatus={connectionStatus}
         />
         <div className={appStyles.player}>
-          <div>
-            Joined as <strong>{userName}</strong>
-          </div>
-          <div>
-            <label>Host actions: </label>
-            <button onClick={handleFlipSend}>Flip (host)</button>
-          </div>
           <div className={appStyles.coinArea}>
             <Coin onFlip={handleFlipSend} onComplete={onFlipResult} />
           </div>
