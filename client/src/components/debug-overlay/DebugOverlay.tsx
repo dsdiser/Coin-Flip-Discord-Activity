@@ -8,6 +8,7 @@ export default function DebugOverlay(props: {
   error?: Error | null;
   user: any;
   auth: any;
+  websocketStatus?: number;
 }) {
   const [open, setOpen] = useState(false);
   return (
@@ -28,6 +29,7 @@ export default function DebugOverlay(props: {
             <strong>Debug</strong>
             <button className={styles.debugClose} onClick={() => setOpen(false)} aria-label="Close debug panel">Close</button>
           </div>
+          <div>WebSocket Status: <strong>{props.websocketStatus === null ? 'N/A' : props.websocketStatus === 0 ? 'CONNECTING' : props.websocketStatus === 1 ? 'OPEN' : props.websocketStatus === 2 ? 'CLOSING' : props.websocketStatus === 3 ? 'CLOSED' : 'UNKNOWN'}</strong></div>
           <div>Status: <strong>{props.status}</strong></div>
           <div>Authenticated: <strong>{String(props.authenticated)}</strong></div>
           <div>Access Token: <strong>{props.accessToken ? `${props.accessToken.slice(0, 8)}...` : 'none'}</strong></div>

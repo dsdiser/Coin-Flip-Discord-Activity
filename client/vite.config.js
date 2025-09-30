@@ -13,10 +13,18 @@ export default defineConfig({
         secure: false,
         ws: true,
       },
+      // Proxy websocket connections if client tries to connect to /ws
+      '/ws': {
+        target: 'ws://localhost:3002',
+        ws: true,
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path.replace(/^\/ws/, ''),
+      },
     },
-    allowedHosts: ['license-proposal-witness-hydrocodone.trycloudflare.com', 'localhost'],
+    allowedHosts: ['localhost'],
     hmr: {
-      clientPort: 443,
+      host: 'localhost'
     },
   },
 });

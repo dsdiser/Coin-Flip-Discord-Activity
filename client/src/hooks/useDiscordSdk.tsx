@@ -26,6 +26,7 @@ const MOCK_DISCORD_CONTEXT_VALUE: DiscordContextValue = {
   auth: undefined,
   status: Status.Error,
   error: new Error("Discord SDK not initialized"),
+  instanceId: Math.random().toString(36).substring(2, 6), // random id for room id
 }
 
 export interface DiscordUser {
@@ -45,6 +46,7 @@ interface DiscordContextValue {
   auth?: ReturnType<typeof DiscordSDK.prototype.commands.authenticate>;
   status: Status;
   error?: Error | null;
+  instanceId?: string;
 }
 
 const DiscordContext = createContext<DiscordContextValue | undefined>(
@@ -157,6 +159,7 @@ export const DiscordContextProvider: React.FC<ProviderProps> = ({
     auth,
     status,
     error,
+    instanceId: sdkRef.current?.instanceId,
   };
 
   if (status === Status.Authenticating && loadingScreen) {

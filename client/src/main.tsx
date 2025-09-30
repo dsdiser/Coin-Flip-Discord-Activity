@@ -10,16 +10,13 @@ import { seedAtom } from './state/websocketAtoms';
 import DebugOverlay from "./components/debug-overlay/DebugOverlay";
 import Coin, { CoinResult } from "./components/coin/coin";
 import BalatroBackground from "./components/balatro-background/BalatroBackground";
+import { spinAmountAtom } from "./state/backgroundAtoms";
 
 const App: React.FC = () => {
-  const [spinAmount, setSpinAmount] = useState<number>(-2);
+  const [spinAmount, setSpinAmount] = useAtom(spinAmountAtom);
 
   const inIframe = window.self !== window.top;
   const shouldAuth = inIframe; // Only authenticate if in an iframe (i.e. in Discord)
-
-  const setSpin = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSpinAmount(parseFloat(e.target.value));
-  }
 
   return (
     <>
@@ -38,13 +35,13 @@ const App: React.FC = () => {
 };
 
 const CoinFlipApp: React.FC = () => {
-  const { user: discordUser, status, authenticated, accessToken, auth, error } = useDiscordSdk();
+  const { user: discordUser, status, authenticated, accessToken, auth, error, instanceId } = useDiscordSdk();
   const [user, setUser] = useState<DiscordUser | null>(null);
 
   const [history, setHistory] = useState<Array<{ result: CoinResult; timestamp: number }>>([]);
   const userName = user?.username ?? null;
-  const { send } = useWebsocket('demo-room', 'ws://localhost:3002');
-  const [, setSeed] = useAtom(seedAtom as any);
+  const { send, connectionStatus } = useWebsocket(instanceId, 'ws://localhost:3002');
+  const [seed, setSeed] = useAtom(seedAtom);
 
   useEffect(() => {
     if (discordUser) {
@@ -56,6 +53,16 @@ const CoinFlipApp: React.FC = () => {
     setHistory((prev) => [...prev, { result: result as CoinResult, timestamp: Date.now() }]);
   }
 
+  const handleFlipInit = () => {
+    if (!user) return;
+    let newSeed = 0
+    if (!seed) {
+      newSeed = Math.floor(Math.random() * 1000000);
+      setSeed(newSeed);
+    }
+    const flipSeed = seed ?? newSeed;
+    send({ type: 'flip:start', roomId: 'demo-room', seed: flipSeed, from: user?.id, timestamp: Date.now() });
+  }
 
   function setMockUser() {
     setUser({
@@ -82,16 +89,13 @@ const CoinFlipApp: React.FC = () => {
           error={error}
           user={user}
           auth={auth}
+          websocketStatus={connectionStatus}
         />
         <div className={appStyles.player}>
           <div>Joined as <strong>{userName}</strong></div>
-          <div style={{ marginTop: 8 }}>
+          <div>
             <label>Host actions: </label>
-            <button onClick={() => {
-              const seed = Math.floor(Math.random() * 1000000);
-              setSeed(seed);
-              send({ type: 'flip:start', roomId: 'demo-room', seed, from: user?.id, timestamp: Date.now() });
-            }}>Flip (host)</button>
+            <button onClick={handleFlipInit}>Flip (host)</button>
           </div>
           <div className={appStyles.coinArea}>
             <Coin onComplete={onFlipResult} />
