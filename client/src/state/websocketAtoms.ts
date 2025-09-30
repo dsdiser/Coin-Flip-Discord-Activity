@@ -49,7 +49,8 @@ export const incomingMessageAtom = atom<IncomingMessage | null>(null);
 export const messageHistoryAtom = atom<IncomingMessage[]>([]);
 
 // Seed atom (for coin flip animation)
-export const seedAtom = atom<number | null>(null);
+const seed = Math.floor(Math.random() * 1000000);
+export const seedAtom = atom<number>(seed);
 
 // Derived atom: last message
 export const lastMessageAtom = atom<IncomingMessage | null>((get) => {

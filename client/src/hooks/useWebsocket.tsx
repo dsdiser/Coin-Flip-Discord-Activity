@@ -1,17 +1,22 @@
 import { useEffect, useRef, useCallback } from 'react';
-import { useAtom } from 'jotai';
+import { useAtom, useSetAtom } from 'jotai';
 import {
   pushIncomingAtom,
   IncomingMessage,
   OutgoingMessage,
   MessageType,
+  seedAtom,
+  FlipStartMessage,
 } from '../state/websocketAtoms';
+import { startFlipAtom } from '../state/coinAtoms';
 
 export function useWebsocket(
   roomId = 'default-room',
   url = `ws://${window.location.hostname}:3002`
 ) {
   const wsRef = useRef<WebSocket | null>(null);
+  const setStartFlip = useSetAtom(startFlipAtom);
+  const setSeed = useSetAtom(seedAtom);
   // pushIncomingAtom is write-only; useAtom returns [, write] signature
   const [, pushIncoming] = useAtom(pushIncomingAtom);
 
@@ -23,6 +28,8 @@ export function useWebsocket(
         case MessageType.Join:
           break;
         case MessageType.FlipStart:
+          setStartFlip(true);
+          setSeed((parsedMessage as FlipStartMessage).seed);
           break;
         case MessageType.FlipResult:
           break;
@@ -32,7 +39,7 @@ export function useWebsocket(
       }
       pushIncoming(parsedMessage);
     },
-    [pushIncoming]
+    [pushIncoming, setStartFlip]
   );
 
   useEffect(() => {

@@ -4,7 +4,7 @@ import ReactDOM from 'react-dom/client';
 import './styles/global.css';
 import appStyles from './components/App.module.css';
 import { DiscordContextProvider, DiscordUser, useDiscordSdk } from './hooks/useDiscordSdk';
-import { Provider as JotaiProvider, useAtom } from 'jotai';
+import { Provider as JotaiProvider, useAtom, useAtomValue } from 'jotai';
 import useWebsocket from './hooks/useWebsocket';
 import { seedAtom } from './state/websocketAtoms';
 import DebugOverlay from './components/debug-overlay/DebugOverlay';
@@ -52,7 +52,7 @@ const CoinFlipApp: React.FC = () => {
   const [history, setHistory] = useState<Array<{ result: CoinResult; timestamp: number }>>([]);
   const userName = user?.username ?? null;
   const { send, connectionStatus } = useWebsocket(instanceId);
-  const [seed, setSeed] = useAtom(seedAtom);
+  const seed = useAtomValue(seedAtom);
 
   useEffect(() => {
     if (discordUser) {
@@ -64,13 +64,9 @@ const CoinFlipApp: React.FC = () => {
     setHistory((prev) => [...prev, { result: result as CoinResult, timestamp: Date.now() }]);
   }
 
-  const handleFlipInit = () => {
+  const handleFlipSend = () => {
     if (!user) return;
     let newSeed = 0;
-    if (!seed) {
-      newSeed = Math.floor(Math.random() * 1000000);
-      setSeed(newSeed);
-    }
     const flipSeed = seed ?? newSeed;
     send({
       type: 'flip:start',
@@ -114,10 +110,10 @@ const CoinFlipApp: React.FC = () => {
           </div>
           <div>
             <label>Host actions: </label>
-            <button onClick={handleFlipInit}>Flip (host)</button>
+            <button onClick={handleFlipSend}>Flip (host)</button>
           </div>
           <div className={appStyles.coinArea}>
-            <Coin onComplete={onFlipResult} />
+            <Coin onFlip={handleFlipSend} onComplete={onFlipResult} />
           </div>
 
           {history.length > 0 && (
