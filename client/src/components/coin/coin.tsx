@@ -31,12 +31,14 @@ export const Coin: React.FC<CoinProps> = ({ onFlip, onComplete, initial = 'heads
   const [isFlipping, setIsFlipping] = useState(false);
   const [startFlip, setStartFlip] = useAtom(startFlipAtom);
 
+  // Initiates websocket message to start flip
   const initiateFlip = useCallback(() => {
     // TODO: Handle who can flip the coin?
     if (isFlipping || startFlip || !seed) return;
     onFlip();
   }, [isFlipping, startFlip, seed, onFlip]);
 
+  // Handles animation for flipping the coin
   const flip = useCallback(async () => {
     if (isFlipping || !seed) return;
     setIsFlipping(true);
@@ -65,11 +67,14 @@ export const Coin: React.FC<CoinProps> = ({ onFlip, onComplete, initial = 'heads
 
   // Listen for startFlip changes (from websocket), then trigger flip
   useStartFlipListener(
-    useCallback(async () => {
-      if (!startFlip) return;
-      await flip();
-      setStartFlip(false);
-    }, [flip, startFlip, setStartFlip])
+    useCallback(
+      async (newVal) => {
+        if (!newVal) return;
+        await flip();
+        setStartFlip(false);
+      },
+      [flip, setStartFlip]
+    )
   );
 
   const frontLabel = useMemo(() => (current === 'heads' ? 'HEADS' : 'TAILS'), []);
@@ -94,7 +99,7 @@ export const Coin: React.FC<CoinProps> = ({ onFlip, onComplete, initial = 'heads
         onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
-            flip();
+            initiateFlip();
           }
         }}
       >
