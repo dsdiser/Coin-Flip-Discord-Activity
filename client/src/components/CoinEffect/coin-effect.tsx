@@ -1,6 +1,6 @@
-import { CoinResult } from "../coin/coin";
+import { CoinResult } from '../coin/coin';
 
-// Effect for after coin lands, should impact some sort of background animation 
+// Effect for after coin lands, should impact some sort of background animation
 interface CoinEffectProps {
   triggered: CoinResult;
   onComplete: () => void;
@@ -13,6 +13,6 @@ export const CoinEffect: React.FC<CoinEffectProps> = ({ triggered, onComplete })
 
   const finishedAnimation = () => {
     onComplete();
-  }
+  };
   return null;
-}
+};

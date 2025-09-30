@@ -1,28 +1,39 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { useAtom } from 'jotai';
-import { pushIncomingAtom, IncomingMessage, OutgoingMessage, MessageType } from '../state/websocketAtoms';
+import {
+  pushIncomingAtom,
+  IncomingMessage,
+  OutgoingMessage,
+  MessageType,
+} from '../state/websocketAtoms';
 
-export function useWebsocket(roomId = 'default-room', url = `ws://${window.location.hostname}:3002`) {
+export function useWebsocket(
+  roomId = 'default-room',
+  url = `ws://${window.location.hostname}:3002`
+) {
   const wsRef = useRef<WebSocket | null>(null);
   // pushIncomingAtom is write-only; useAtom returns [, write] signature
   const [, pushIncoming] = useAtom(pushIncomingAtom);
 
-  const handleMessage = useCallback((parsedMessage: IncomingMessage) => {
-    // Narrow and optionally handle known message types here (for logging or special handling)
-    switch (parsedMessage.type) {
-      case MessageType.Join:
-        break;
-      case MessageType.FlipStart:
-        break;
-      case MessageType.FlipResult:
-        pushIncoming(parsedMessage);
-        break;
-      default:
-        // Unknown type - still forward as an extensible message
-        pushIncoming(parsedMessage);
-        break;
-    }
-  }, [pushIncoming]);
+  const handleMessage = useCallback(
+    (parsedMessage: IncomingMessage) => {
+      // Narrow and optionally handle known message types here (for logging or special handling)
+      switch (parsedMessage.type) {
+        case MessageType.Join:
+          break;
+        case MessageType.FlipStart:
+          break;
+        case MessageType.FlipResult:
+          pushIncoming(parsedMessage);
+          break;
+        default:
+          // Unknown type - still forward as an extensible message
+          pushIncoming(parsedMessage);
+          break;
+      }
+    },
+    [pushIncoming]
+  );
 
   useEffect(() => {
     const ws = new WebSocket(url);
@@ -30,7 +41,11 @@ export function useWebsocket(roomId = 'default-room', url = `ws://${window.locat
 
     ws.onopen = () => {
       // send join message
-      const join: OutgoingMessage = { type: 'join', roomId, timestamp: Date.now() } as OutgoingMessage;
+      const join: OutgoingMessage = {
+        type: 'join',
+        roomId,
+        timestamp: Date.now(),
+      } as OutgoingMessage;
       ws.send(JSON.stringify(join));
     };
 
@@ -57,7 +72,9 @@ export function useWebsocket(roomId = 'default-room', url = `ws://${window.locat
     };
 
     return () => {
-      try { ws.close(); } catch (e) { }
+      try {
+        ws.close();
+      } catch (e) {}
       wsRef.current = null;
     };
   }, [url, roomId, pushIncoming]);

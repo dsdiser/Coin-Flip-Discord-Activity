@@ -1,16 +1,16 @@
 // filepath: client/src/main.tsx
-import React, { useEffect, useState } from "react";
-import ReactDOM from "react-dom/client";
-import "./styles/global.css";
-import appStyles from "./components/App.module.css";
-import { DiscordContextProvider, DiscordUser, useDiscordSdk } from "./hooks/useDiscordSdk";
+import React, { useEffect, useState } from 'react';
+import ReactDOM from 'react-dom/client';
+import './styles/global.css';
+import appStyles from './components/App.module.css';
+import { DiscordContextProvider, DiscordUser, useDiscordSdk } from './hooks/useDiscordSdk';
 import { Provider as JotaiProvider, useAtom } from 'jotai';
 import useWebsocket from './hooks/useWebsocket';
 import { seedAtom } from './state/websocketAtoms';
-import DebugOverlay from "./components/debug-overlay/DebugOverlay";
-import Coin, { CoinResult } from "./components/coin/coin";
-import BalatroBackground from "./components/balatro-background/BalatroBackground";
-import { spinAmountAtom } from "./state/backgroundAtoms";
+import DebugOverlay from './components/debug-overlay/DebugOverlay';
+import Coin, { CoinResult } from './components/coin/coin';
+import BalatroBackground from './components/balatro-background/BalatroBackground';
+import { spinAmountAtom } from './state/backgroundAtoms';
 
 const App: React.FC = () => {
   const [spinAmount, setSpinAmount] = useAtom(spinAmountAtom);
@@ -20,8 +20,17 @@ const App: React.FC = () => {
 
   return (
     <>
-      <BalatroBackground color1="#476952" color2="#404040" color3="#142021" pixelFilter={500} spinRotation={spinAmount} />
-      <DiscordContextProvider authenticate={shouldAuth} scope={["identify", "guilds", "guilds.members.read"]}>
+      <BalatroBackground
+        color1="#476952"
+        color2="#404040"
+        color3="#142021"
+        pixelFilter={500}
+        spinRotation={spinAmount}
+      />
+      <DiscordContextProvider
+        authenticate={shouldAuth}
+        scope={['identify', 'guilds', 'guilds.members.read']}
+      >
         <CoinFlipApp />
       </DiscordContextProvider>
     </>
@@ -29,7 +38,15 @@ const App: React.FC = () => {
 };
 
 const CoinFlipApp: React.FC = () => {
-  const { user: discordUser, status, authenticated, accessToken, auth, error, instanceId } = useDiscordSdk();
+  const {
+    user: discordUser,
+    status,
+    authenticated,
+    accessToken,
+    auth,
+    error,
+    instanceId,
+  } = useDiscordSdk();
   const [user, setUser] = useState<DiscordUser | null>(null);
 
   const [history, setHistory] = useState<Array<{ result: CoinResult; timestamp: number }>>([]);
@@ -49,14 +66,20 @@ const CoinFlipApp: React.FC = () => {
 
   const handleFlipInit = () => {
     if (!user) return;
-    let newSeed = 0
+    let newSeed = 0;
     if (!seed) {
       newSeed = Math.floor(Math.random() * 1000000);
       setSeed(newSeed);
     }
     const flipSeed = seed ?? newSeed;
-    send({ type: 'flip:start', roomId: 'demo-room', seed: flipSeed, from: user?.id, timestamp: Date.now() });
-  }
+    send({
+      type: 'flip:start',
+      roomId: 'demo-room',
+      seed: flipSeed,
+      from: user?.id,
+      timestamp: Date.now(),
+    });
+  };
 
   function setMockUser() {
     setUser({
@@ -86,7 +109,9 @@ const CoinFlipApp: React.FC = () => {
           websocketStatus={connectionStatus}
         />
         <div className={appStyles.player}>
-          <div>Joined as <strong>{userName}</strong></div>
+          <div>
+            Joined as <strong>{userName}</strong>
+          </div>
           <div>
             <label>Host actions: </label>
             <button onClick={handleFlipInit}>Flip (host)</button>
@@ -110,11 +135,10 @@ const CoinFlipApp: React.FC = () => {
         </div>
       </div>
     </>
-
   );
-}
+};
 
-const root = ReactDOM.createRoot(document.getElementById("app")!);
+const root = ReactDOM.createRoot(document.getElementById('app')!);
 root.render(
   <React.StrictMode>
     <JotaiProvider>

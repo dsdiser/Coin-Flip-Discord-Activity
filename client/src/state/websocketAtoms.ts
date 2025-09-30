@@ -33,7 +33,11 @@ export interface FlipResultMessage extends BaseMessage {
   from?: string;
 }
 
-export type IncomingMessage = JoinMessage | FlipStartMessage | FlipResultMessage | ({ type: string } & Record<string, unknown>);
+export type IncomingMessage =
+  | JoinMessage
+  | FlipStartMessage
+  | FlipResultMessage
+  | ({ type: string } & Record<string, unknown>);
 
 export type OutgoingMessage = IncomingMessage | ({ type: string } & Record<string, unknown>);
 

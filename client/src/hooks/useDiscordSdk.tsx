@@ -1,21 +1,14 @@
-import React, {
-  createContext,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-  ReactNode,
-} from "react";
-import { DiscordSDK } from "@discord/embedded-app-sdk";
-import LoadingScreen from "../components/loading-screen/LoadingScreen";
-import { OAuthScopes } from "@discord/embedded-app-sdk/output/schema/types";
+import React, { createContext, useContext, useEffect, useRef, useState, ReactNode } from 'react';
+import { DiscordSDK } from '@discord/embedded-app-sdk';
+import LoadingScreen from '../components/loading-screen/LoadingScreen';
+import { OAuthScopes } from '@discord/embedded-app-sdk/output/schema/types';
 
 export enum Status {
-  Idle = "idle",
-  Ready = "ready",
-  Authenticating = "authenticating",
-  Authenticated = "authenticated",
-  Error = "error",
+  Idle = 'idle',
+  Ready = 'ready',
+  Authenticating = 'authenticating',
+  Authenticated = 'authenticated',
+  Error = 'error',
 }
 
 const MOCK_DISCORD_CONTEXT_VALUE: DiscordContextValue = {
@@ -25,9 +18,9 @@ const MOCK_DISCORD_CONTEXT_VALUE: DiscordContextValue = {
   user: null,
   auth: undefined,
   status: Status.Error,
-  error: new Error("Discord SDK not initialized"),
+  error: new Error('Discord SDK not initialized'),
   instanceId: Math.random().toString(36).substring(2, 6), // random id for room id
-}
+};
 
 export interface DiscordUser {
   id: string;
@@ -36,7 +29,6 @@ export interface DiscordUser {
   avatar?: string | null;
   global_name?: string | null;
 }
-
 
 interface DiscordContextValue {
   discordSdk?: any;
@@ -49,9 +41,7 @@ interface DiscordContextValue {
   instanceId?: string;
 }
 
-const DiscordContext = createContext<DiscordContextValue | undefined>(
-  undefined
-);
+const DiscordContext = createContext<DiscordContextValue | undefined>(undefined);
 
 interface ProviderProps {
   children: ReactNode;
@@ -63,7 +53,7 @@ interface ProviderProps {
 export const DiscordContextProvider: React.FC<ProviderProps> = ({
   children,
   authenticate = false,
-  scope = ["identify", "guilds"],
+  scope = ['identify', 'guilds'],
   loadingScreen = <LoadingScreen />,
 }) => {
   const clientId = (import.meta as any).env?.VITE_DISCORD_CLIENT_ID;
@@ -80,7 +70,7 @@ export const DiscordContextProvider: React.FC<ProviderProps> = ({
     try {
       sdkRef.current = new DiscordSDK(clientId);
     } catch (err) {
-      console.error("Failed to initialize Discord SDK", err);
+      console.error('Failed to initialize Discord SDK', err);
       setError(err instanceof Error ? err : new Error(String(err)));
       setStatus(Status.Error);
     }
@@ -107,22 +97,22 @@ export const DiscordContextProvider: React.FC<ProviderProps> = ({
         // Request an authorization code from the Discord client
         const { code } = await sdkRef.current.commands.authorize({
           client_id: clientId,
-          response_type: "code",
-          state: "",
-          prompt: "none",
+          response_type: 'code',
+          state: '',
+          prompt: 'none',
           scope,
         });
 
         // Exchange the code for an access token at our server endpoint
-        const res = await fetch("/api/token", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
+        const res = await fetch('/api/token', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ code }),
         });
         const body = await res.json();
         const token = body?.access_token;
         if (!token) {
-          throw new Error("Token exchange failed");
+          throw new Error('Token exchange failed');
         }
         if (!mounted) return;
         setAccessToken(token);
@@ -166,15 +156,13 @@ export const DiscordContextProvider: React.FC<ProviderProps> = ({
     return <>{loadingScreen}</>;
   }
 
-  return (
-    <DiscordContext.Provider value={value}>{children}</DiscordContext.Provider>
-  );
+  return <DiscordContext.Provider value={value}>{children}</DiscordContext.Provider>;
 };
 
 export function useDiscordSdk(): DiscordContextValue {
   const ctx = useContext(DiscordContext);
   if (!ctx) {
-    console.warn("useDiscordSdk must be used within DiscordContextProvider");
+    console.warn('useDiscordSdk must be used within DiscordContextProvider');
     return MOCK_DISCORD_CONTEXT_VALUE;
   }
   return ctx;

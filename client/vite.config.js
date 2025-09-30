@@ -24,7 +24,7 @@ export default defineConfig({
     },
     allowedHosts: ['localhost'],
     hmr: {
-      host: 'localhost'
+      host: 'localhost',
     },
   },
 });

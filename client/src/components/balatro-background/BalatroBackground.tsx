@@ -133,11 +133,11 @@ export default function BalatroBackground({
   pixelFilter = 745.0,
   spinEase = 1.0,
   isRotate = false,
-  mouseInteraction = true
+  mouseInteraction = true,
 }: BalatroProps) {
   // TODO: Find a way to modify props inside this component without fully rerendering the component.
-  // Possible solution is to add event listeners for different props we want to change. 
-  // Another option is to move the cleanup code into a separate function 
+  // Possible solution is to add event listeners for different props we want to change.
+  // Another option is to move the cleanup code into a separate function
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -152,7 +152,11 @@ export default function BalatroBackground({
     function resize() {
       renderer.setSize(container.offsetWidth, container.offsetHeight);
       if (program) {
-        program.uniforms.iResolution.value = [gl.canvas.width, gl.canvas.height, gl.canvas.width / gl.canvas.height];
+        program.uniforms.iResolution.value = [
+          gl.canvas.width,
+          gl.canvas.height,
+          gl.canvas.width / gl.canvas.height,
+        ];
       }
     }
     window.addEventListener('resize', resize);
@@ -165,7 +169,7 @@ export default function BalatroBackground({
       uniforms: {
         iTime: { value: 0 },
         iResolution: {
-          value: [gl.canvas.width, gl.canvas.height, gl.canvas.width / gl.canvas.height]
+          value: [gl.canvas.width, gl.canvas.height, gl.canvas.width / gl.canvas.height],
         },
         uSpinRotation: { value: spinRotation },
         uSpinSpeed: { value: spinSpeed },
@@ -179,8 +183,8 @@ export default function BalatroBackground({
         uPixelFilter: { value: pixelFilter },
         uSpinEase: { value: spinEase },
         uIsRotate: { value: isRotate },
-        uMouse: { value: [0.5, 0.5] }
-      }
+        uMouse: { value: [0.5, 0.5] },
+      },
     });
 
     const mesh = new Mesh(gl, { geometry, program });
@@ -224,7 +228,7 @@ export default function BalatroBackground({
     pixelFilter,
     spinEase,
     isRotate,
-    mouseInteraction
+    mouseInteraction,
   ]);
 
   return <div ref={containerRef} className={styles.balatroContainer} />;
