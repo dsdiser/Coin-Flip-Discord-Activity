@@ -2,7 +2,7 @@ import { useEffect, useRef, useCallback } from 'react';
 import { useAtom } from 'jotai';
 import { pushIncomingAtom, IncomingMessage, OutgoingMessage, MessageType } from '../state/websocketAtoms';
 
-export function useWebsocket(roomId = 'default-room', url = 'ws://localhost:3002') {
+export function useWebsocket(roomId = 'default-room', url = `ws://${window.location.hostname}:3002`) {
   const wsRef = useRef<WebSocket | null>(null);
   // pushIncomingAtom is write-only; useAtom returns [, write] signature
   const [, pushIncoming] = useAtom(pushIncomingAtom);

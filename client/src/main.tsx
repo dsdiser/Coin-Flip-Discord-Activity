@@ -21,15 +21,9 @@ const App: React.FC = () => {
   return (
     <>
       <BalatroBackground color1="#476952" color2="#404040" color3="#142021" pixelFilter={500} spinRotation={spinAmount} />
-      {/* <div>
-        <label>Background Spin Rotation: </label>
-        <input onChange={setSpin} type="number" value={spinAmount} />
-      </div> */}
-      <div>
-        <DiscordContextProvider authenticate={shouldAuth} scope={["identify", "guilds", "guilds.members.read"]}>
-          <CoinFlipApp />
-        </DiscordContextProvider>
-      </div>
+      <DiscordContextProvider authenticate={shouldAuth} scope={["identify", "guilds", "guilds.members.read"]}>
+        <CoinFlipApp />
+      </DiscordContextProvider>
     </>
   );
 };
@@ -40,7 +34,7 @@ const CoinFlipApp: React.FC = () => {
 
   const [history, setHistory] = useState<Array<{ result: CoinResult; timestamp: number }>>([]);
   const userName = user?.username ?? null;
-  const { send, connectionStatus } = useWebsocket(instanceId, 'ws://localhost:3002');
+  const { send, connectionStatus } = useWebsocket(instanceId);
   const [seed, setSeed] = useAtom(seedAtom);
 
   useEffect(() => {
