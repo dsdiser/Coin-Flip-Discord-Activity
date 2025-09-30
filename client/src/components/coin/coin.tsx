@@ -37,7 +37,7 @@ export const Coin: React.FC<CoinProps> = ({ onFlip, onComplete, initial = 'heads
     onFlip();
   }, [isFlipping, startFlip, seed, onFlip]);
 
-  // Handles animation for flipping the coin
+  // Handles calculating result and animation for flipping the coin
   const flip = useCallback(async () => {
     if (isFlipping || !seed) return;
     setIsFlipping(true);

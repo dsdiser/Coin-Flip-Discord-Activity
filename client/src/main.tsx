@@ -69,7 +69,6 @@ const CoinFlipApp: React.FC = () => {
     if (!user) return;
     send({
       type: 'flip:start',
-      roomId: 'demo-room',
       seed: seed,
       from: user?.id,
       timestamp: Date.now(),
