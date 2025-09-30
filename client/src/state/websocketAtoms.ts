@@ -16,6 +16,7 @@ interface BaseMessage {
 // Specific message shapes
 export interface JoinMessage extends BaseMessage {
   type: MessageType.Join;
+  roomMembers?: string[]; // Should be fulfilled by server
 }
 
 export interface FlipStartMessage extends BaseMessage {

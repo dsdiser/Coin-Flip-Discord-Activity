@@ -17,20 +17,20 @@ export function useWebsocket(
 
   const handleMessage = useCallback(
     (parsedMessage: IncomingMessage) => {
-      // Narrow and optionally handle known message types here (for logging or special handling)
+      // Set specific atoms based on the message type, then push to specific atoms for handling
+      // We can then use the atoms directly or use atomWithListeners to use a callback
       switch (parsedMessage.type) {
         case MessageType.Join:
           break;
         case MessageType.FlipStart:
           break;
         case MessageType.FlipResult:
-          pushIncoming(parsedMessage);
           break;
         default:
           // Unknown type - still forward as an extensible message
-          pushIncoming(parsedMessage);
           break;
       }
+      pushIncoming(parsedMessage);
     },
     [pushIncoming]
   );
