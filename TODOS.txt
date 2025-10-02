@@ -1,6 +1,8 @@
 TODOS
 - Add spinning when animation is playing
 - Add multiple user profiles
+- Mouse cursor tracking for each of the users
+- Add animation for moving coin value to user profile
 - Slow down the coin flip before animation finishes
 - Change background to the color of whatever side
 - Get assets for coin, bot, etc
