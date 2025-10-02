@@ -1,5 +1,5 @@
 import { useEffect, useRef, useCallback } from 'react';
-import { useAtom, useSetAtom } from 'jotai';
+import { useSetAtom } from 'jotai';
 import {
   pushIncomingAtom,
   IncomingMessage,
@@ -9,15 +9,15 @@ import {
 } from '../state/websocketAtoms';
 import { seedAtom, startFlipAtom } from '../state/coinAtoms';
 
-export function useWebsocket(
-  roomId = 'default-room',
-  url = `ws://${window.location.hostname}:3002`
-) {
+const metaVars = (import.meta as any).env;
+// TODO: FIX WEBSOCKET IN IFRAME
+const defaultUrl = `wss://${metaVars.VITE_URL}/ws`;
+
+export function useWebsocket(roomId = 'default-room', url = defaultUrl) {
   const wsRef = useRef<WebSocket | null>(null);
   const setStartFlip = useSetAtom(startFlipAtom);
   const setSeed = useSetAtom(seedAtom);
-  // pushIncomingAtom is write-only; useAtom returns [, write] signature
-  const [, pushIncoming] = useAtom(pushIncomingAtom);
+  const setPushIncoming = useSetAtom(pushIncomingAtom);
 
   const handleMessage = useCallback(
     (parsedMessage: IncomingMessage) => {
@@ -36,9 +36,9 @@ export function useWebsocket(
           // Unknown type - still forward as an extensible message
           break;
       }
-      pushIncoming(parsedMessage);
+      setPushIncoming(parsedMessage);
     },
-    [pushIncoming, setStartFlip]
+    [setPushIncoming, setStartFlip]
   );
 
   useEffect(() => {
@@ -83,7 +83,7 @@ export function useWebsocket(
       } catch (e) {}
       wsRef.current = null;
     };
-  }, [url, roomId, pushIncoming]);
+  }, [url, roomId, setPushIncoming]);
 
   const send = useCallback((message: OutgoingMessage) => {
     const ws = wsRef.current;

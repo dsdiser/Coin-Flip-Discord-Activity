@@ -1,4 +1,3 @@
-
 # Coin Flip — Discord Activity
 
 Multiplayer lobby that runs as a Discord Activity so you can flip coins together inside Discord.
@@ -6,20 +5,21 @@ Multiplayer lobby that runs as a Discord Activity so you can flip coins together
 ## Goals
 
 - Multiplayer lobby for joining a coin flip session
-- Real-time flips resolved in the activity
-- Maybe threejs based implementation for flipping, we'll see.
+- Real-time flips resolved in the activity or on the webpage
 
 ## Dependencies
 
 Client (UI):
+
 - React - Typescript
 - @discord/embedded-app-sdk
 - Vite (dev)
-- ojs (for background animation)
+- ojs (for background animation shader)
 - Framer Motion (for coin animation)
 - random.js (prng)
 
 Server:
+
 - Express
 - dotenv (for simple env config)
 - node-fetch
@@ -44,7 +44,8 @@ npm install
 npm start
 ```
 
+## Productionizing
+
+Use .env and .env.production to set environment variables for the server and client.
+
 The client uses the Embedded App SDK to run as an Activity inside Discord.
-
-
-

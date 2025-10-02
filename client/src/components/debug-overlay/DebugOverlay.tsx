@@ -41,41 +41,33 @@ export default function DebugOverlay(props: {
             </button>
           </div>
           <div>
-            WebSocket Status:{' '}
+            WebSocket Status:
             <strong>
               {props.websocketStatus === null
-                ? 'N/A'
+                ? ' N/A'
                 : props.websocketStatus === 0
-                ? 'CONNECTING'
+                ? ' CONNECTING'
                 : props.websocketStatus === 1
-                ? 'OPEN'
+                ? ' OPEN'
                 : props.websocketStatus === 2
-                ? 'CLOSING'
+                ? ' CLOSING'
                 : props.websocketStatus === 3
-                ? 'CLOSED'
-                : 'UNKNOWN'}
+                ? ' CLOSED'
+                : ' UNKNOWN'}
             </strong>
           </div>
+          <div>Hostname: {window.location.hostname}</div>
           <div>
             Status: <strong>{props.status}</strong>
-          </div>
-          <div>
-            Authenticated: <strong>{String(props.authenticated)}</strong>
-          </div>
-          <div>
-            Access Token:{' '}
-            <strong>{props.accessToken ? `${props.accessToken.slice(0, 8)}...` : 'none'}</strong>
           </div>
           <div>
             Error: <strong>{props.error ? props.error.message : 'none'}</strong>
           </div>
           <div className={styles.mt8}>
-            User:
             <pre className={styles.debugPre}>
-              {props.user ? JSON.stringify(props.user, null, 2) : 'no user'}
+              {props.auth ? JSON.stringify(props.auth, null, 2) : 'noauth'}
             </pre>
           </div>
-          <div className={styles.mt8}>{props.auth ? JSON.stringify(props.auth) : 'noauth'}</div>
         </div>
       </aside>
     </div>

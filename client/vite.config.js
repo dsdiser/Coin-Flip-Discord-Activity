@@ -11,7 +11,6 @@ export default defineConfig({
         target: 'http://localhost:3001',
         changeOrigin: true,
         secure: false,
-        ws: true,
       },
       // Proxy websocket connections if client tries to connect to /ws
       '/ws': {
@@ -19,10 +18,9 @@ export default defineConfig({
         ws: true,
         changeOrigin: true,
         secure: false,
-        rewrite: (path) => path.replace(/^\/ws/, ''),
       },
     },
-    allowedHosts: ['localhost'],
+    allowedHosts: ['localhost', 'household-pickup-cam-vice.trycloudflare.com'],
     hmr: {
       host: 'localhost',
     },

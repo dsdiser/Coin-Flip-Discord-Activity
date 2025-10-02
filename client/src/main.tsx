@@ -1,4 +1,3 @@
-// filepath: client/src/main.tsx
 import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom/client';
 import './styles/global.css';
@@ -53,7 +52,6 @@ const CoinFlipApp: React.FC = () => {
   const setRandomSeed = useSetAtom(setRandomSeedAtom);
   const { send, connectionStatus } = useWebsocket(instanceId);
 
-  const userName = user?.username ?? null;
   useEffect(() => {
     if (discordUser) {
       setUser(discordUser);
@@ -70,7 +68,6 @@ const CoinFlipApp: React.FC = () => {
     send({
       type: 'flip:start',
       seed: seed,
-      from: user?.id,
       timestamp: Date.now(),
     });
   };

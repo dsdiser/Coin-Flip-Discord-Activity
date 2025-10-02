@@ -1,5 +1,4 @@
 import { atom } from 'jotai';
-import { seedAtom } from './coinAtoms';
 
 export enum MessageType {
   Join = 'join',
