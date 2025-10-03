@@ -6,7 +6,7 @@ import { DiscordContextProvider, DiscordUser, useDiscordSdk } from './hooks/useD
 import { Provider as JotaiProvider, useAtom, useAtomValue, useSetAtom } from 'jotai';
 import useWebsocket from './hooks/useWebsocket';
 import DebugOverlay from './components/debug-overlay/DebugOverlay';
-import Coin, { CoinResult } from './components/coin/coin';
+import Coin, { CoinResult } from './components/coin/Coin';
 import BalatroBackground from './components/balatro-background/BalatroBackground';
 import { spinAmountAtom } from './state/backgroundAtoms';
 import { setRandomSeedAtom, seedAtom } from './state/coinAtoms';

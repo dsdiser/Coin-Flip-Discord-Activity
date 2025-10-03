@@ -1,4 +1,4 @@
-import { CoinResult } from '../coin/coin';
+import { CoinResult } from '../coin/Coin';
 
 // Effect for after coin lands, should impact some sort of background animation
 interface CoinEffectProps {

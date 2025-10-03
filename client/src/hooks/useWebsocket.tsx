@@ -10,14 +10,12 @@ import {
 import { seedAtom, startFlipAtom } from '../state/coinAtoms';
 
 const metaVars = (import.meta as any).env;
-// TODO: FIX WEBSOCKET IN IFRAME
-// Optionally do this for discord only
-// You can only connect to websocket that is in proxy
-// Instead of example.com/ws, you have <appid>.discordsays.com/.proxy/ws
-// You can setup it in application's activity URL mappings in developer
-// const isInIframe = window.self !== window.top; portal
+
 const isInIframe = window.self !== window.top;
 let defaultUrl = `wss://${metaVars.VITE_URL}/ws`;
+// In discord iframe can only connect to websocket that is in proxy
+// Instead of example.com/ws, you have <appid>.discordsays.com/.proxy/ws
+// Make sure the redirect is set up in application's activity URL mappings in developer
 if (isInIframe) {
   // Build discord proxy URL to connect to the websocket
   defaultUrl = `wss://${metaVars.VITE_DISCORD_CLIENT_ID}.discordsays.com/.proxy/ws`;

@@ -17,7 +17,7 @@ export interface CoinProps {
 }
 
 const ROTATION_MIN = 10; // Minimum number of rotations
-const ROTATION_MAX = 30; // Maximum number of rotations
+const ROTATION_MAX = 40; // Maximum number of rotations
 
 /**
  * Simple coin component that flips on click and returns a random result.
