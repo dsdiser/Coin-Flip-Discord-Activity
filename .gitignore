@@ -33,3 +33,7 @@ dist-ssr
 *.sw?
 
 .editorconfig
+
+# wrangler
+.wrangler
+.dev.vars*
