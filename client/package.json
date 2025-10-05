@@ -1,10 +1,11 @@
 {
-  "name": "getting-started-activity",
+  "name": "coin-flip-discord-activity-client",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.6.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+  "dev": "vite",
+  "dev:cloudflare": "set VITE_DEV_CLOUDFLARE=1 && vite",
     "build": "vite build",
     "preview": "vite preview"
   },

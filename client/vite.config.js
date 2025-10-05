@@ -1,11 +1,20 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { cloudflare } from '@cloudflare/vite-plugin';
+import viteDevServer from './vite-dev-server';
 
 // https://vitejs.dev/config/
 export default defineConfig({
   envDir: '../',
-  plugins: [react(), cloudflare()],
+  plugins: [
+    react(),
+    cloudflare(),
+    viteDevServer({
+      cloudflare:
+        process.env.VITE_DEV_CLOUDFLARE === '1' || process.env.VITE_DEV_CLOUDFLARE === 'true',
+      watch: ['../server', '../wrangler.toml'],
+    }),
+  ],
   server: {
     proxy: {
       '/api': {
@@ -15,7 +24,7 @@ export default defineConfig({
       },
       // Proxy websocket connections if client tries to connect to /ws
       '/ws': {
-        target: 'ws://localhost:3002',
+        target: 'ws://localhost:8787',
         ws: true,
         changeOrigin: true,
         secure: false,

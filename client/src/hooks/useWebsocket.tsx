@@ -13,11 +13,10 @@ const metaVars = (import.meta as any).env;
 
 const isInIframe = window.self !== window.top;
 let defaultUrl = `wss://${metaVars.VITE_URL}/ws`;
-// In discord iframe can only connect to websocket that is in proxy
-// Instead of example.com/ws, you have <appid>.discordsays.com/.proxy/ws
-// Make sure the redirect is set up in application's activity URL mappings in developer
+// In discord iframe can only connect to a websocket that is in proxy
+// Instead of example.com/ws, you use <appid>.discordsays.com/.proxy/ws
+// Make sure the redirect is set up in application's activity URL mappings in dev console
 if (isInIframe) {
-  // Build discord proxy URL to connect to the websocket
   defaultUrl = `wss://${metaVars.VITE_DISCORD_CLIENT_ID}.discordsays.com/.proxy/ws`;
 }
 
