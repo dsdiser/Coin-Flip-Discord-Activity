@@ -1,21 +1,37 @@
-import dotenv from 'dotenv';
-// Load environment from repo root
-dotenv.config({ path: '../.env' });
-
-// Import servers to run them in-process. Both modules start their servers
-// during module initialization (they call listen / create server at top-level),
-// so simply importing them is sufficient for local development.
-import './webserver';
+import { APP } from './honoDef';
 import './websocket-server';
 
-console.log('Started webserver and websocket server in-process');
+console.log('Started webserver and websocket server');
 
-function shutdown() {
-  console.log('Shutting down servers...');
-  // If the server modules expose explicit shutdown hooks in the future,
-  // call them here. For now, just exit the process which will close sockets.
-  process.exit(0);
-}
+APP.get('*', async (c) => {
+  return c.text('Hello from Cloudflare Worker');
+});
 
-process.on('SIGINT', shutdown);
-process.on('SIGTERM', shutdown);
+APP.post('/api/token', async (c: any) => {
+  const ip = c.req.header('x-forwarded-for') || (c.req as any).conn?.remoteAddr || 'unknown';
+  console.debug('Got request for /api/token for ' + ip);
+
+  const body = await c.req.json();
+  const code = body?.code || '';
+
+  // Exchange the code for an access_token
+  const response = await fetch('https://discord.com/api/oauth2/token', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: new URLSearchParams({
+      client_id: c.env.VITE_DISCORD_CLIENT_ID || '',
+      client_secret: c.env.DISCORD_CLIENT_SECRET || '',
+      grant_type: 'authorization_code',
+      code,
+    }),
+  });
+
+  const data = (await response.json()) as any;
+  const access_token = (data && data.access_token) || null;
+
+  return c.json({ access_token });
+});
+
+export default APP;

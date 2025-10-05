@@ -2,8 +2,7 @@ module.exports = {
   root: true,
   env: {
     browser: true,
-    es2021: true,
-    node: true,
+    es6: true,
   },
   extends: [
     'eslint:recommended',
@@ -21,7 +20,16 @@ module.exports = {
   plugins: ['react', '@typescript-eslint'],
   rules: {
     // Keep lines reasonably wide for shaders and long strings, but warn if too long
-    'max-len': ['warn', { code: 100, ignoreComments: true, ignoreUrls: true, ignoreStrings: true, ignoreTemplateLiterals: true }],
+    'max-len': [
+      'warn',
+      {
+        code: 100,
+        ignoreComments: true,
+        ignoreUrls: true,
+        ignoreStrings: true,
+        ignoreTemplateLiterals: true,
+      },
+    ],
     // Your existing preferences can go here
   },
   settings: {

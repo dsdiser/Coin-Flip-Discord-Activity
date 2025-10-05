@@ -1,71 +1,86 @@
-import { WebSocketServer, WebSocket } from 'ws';
+import { WSContext } from 'hono/ws';
+import { APP } from './honoDef';
+import { upgradeWebSocket, getConnInfo } from 'hono/cloudflare-workers';
 
-// Simple room-based WebSocket server for local testing
-// - Listens on port 3002
-// - Clients send a { type: 'join', roomId } message to join a room
-// - Any message sent from a client is broadcast to all clients in the same room (including sender)
-
-const PORT = process.env.PORT ? Number(process.env.WS_PORT) : 3002;
-
-const wss = new WebSocketServer({ port: PORT });
-
+interface RoomMember {
+  userId: string;
+  address: string;
+  ws?: WSContext;
+}
 // Map roomId -> Set of ws clients
-const rooms = new Map();
+const rooms = new Map<string, Set<RoomMember>>();
 
-function joinRoom(ws: WebSocket & { roomId?: string }, roomId: string) {
-  if (!rooms.has(roomId)) rooms.set(roomId, new Set());
-  rooms.get(roomId).add(ws);
-  ws.roomId = roomId;
+function joinRoom(roomId: string, userId: string, address: string, ws: WSContext) {
+  if (!rooms.has(roomId)) {
+    rooms.set(roomId, new Set<RoomMember>());
+  }
+  rooms.get(roomId)!.add({ userId, address, ws });
 }
 
-function leaveRoom(ws: WebSocket & { roomId?: string }) {
-  const roomId = ws.roomId;
-  if (!roomId) return;
-  const set = rooms.get(roomId);
-  if (!set) return;
-  set.delete(ws);
-  if (set.size === 0) rooms.delete(roomId);
+function leaveRoom(url: string) {
+  // Find the room by URL (as we don't have ws here)
+  for (const [roomId, members] of rooms.entries()) {
+    for (const member of members) {
+      if (member.address === url) {
+        members.delete(member);
+        if (members.size === 0) rooms.delete(roomId);
+        return;
+      }
+    }
+  }
 }
 
 function broadcastToRoom(roomId: string, data: any) {
   const set = rooms.get(roomId);
   if (!set) return;
   for (const client of set) {
-    if (client.readyState === client.OPEN) {
-      client.send(data);
+    if (client.ws && client.ws.readyState === 1) {
+      client.ws.send(data);
     }
   }
 }
 
-wss.on('connection', (ws: WebSocket & { roomId?: string }) => {
-  ws.on('message', (raw) => {
-    console.debug('Received message', raw.toString());
-    try {
-      const str = raw.toString();
-      const msg = JSON.parse(str);
-      // Handle join specially
-      if (msg && msg.type === 'join' && typeof msg.roomId === 'string') {
-        joinRoom(ws, msg.roomId);
-        // Optionally ack
-        const ack = JSON.stringify({ type: 'joined', roomId: msg.roomId, timestamp: Date.now() });
-        ws.send(ack);
-        return;
-      }
+APP.get(
+  '/ws',
+  upgradeWebSocket((c) => {
+    const connInfo = getConnInfo(c);
+    let roomId: string = 'none';
+    return {
+      onMessage(event, ws) {
+        console.debug('Received message', ws.toString());
+        try {
+          const str = ws.toString();
+          const msg = JSON.parse(str);
+          roomId = msg.roomId;
+          // Handle join specially
+          if (msg && msg.type === 'join' && typeof msg.id === 'string' && connInfo.remote.address) {
+            joinRoom(roomId, msg.id, connInfo.remote.address, ws);
+            const ack = JSON.stringify({
+              type: 'joined',
+              roomId: roomId,
+              timestamp: Date.now(),
+            });
+            ws.send(ack);
+            return;
+          }
 
-      // If the socket has a room, broadcast to room; otherwise ignore
-      const roomId = ws.roomId || (msg && msg.roomId);
-      if (roomId && typeof roomId === 'string') {
-        broadcastToRoom(roomId, JSON.stringify(msg));
-      }
-    } catch (err) {
-      console.warn('Failed to handle message', err);
-    }
-  });
-
-  ws.on('close', () => {
-    console.debug('Client disconnected, leaving room');
-    leaveRoom(ws);
-  });
-});
-
-console.log(`WebSocket server listening on ws://localhost:${PORT}`);
+          // If the socket has a room, broadcast to room; otherwise ignore
+          if (roomId && typeof roomId === 'string') {
+            broadcastToRoom(roomId, JSON.stringify(msg));
+          }
+        } catch (err) {
+          console.warn('Failed to handle message', err);
+        }
+      },
+      onClose: (event, ws) => {
+        console.debug('Client disconnected, leaving room');
+        if (connInfo.remote.address) {
+          leaveRoom(connInfo.remote.address);
+        }
+      },
+      onError: (event) => {
+        console.error('WebSocket error:', event);
+      },
+    };
+  })
+);

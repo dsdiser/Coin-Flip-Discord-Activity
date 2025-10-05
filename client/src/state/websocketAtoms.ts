@@ -22,7 +22,6 @@ export interface JoinMessage extends BaseMessage {
 export interface FlipStartMessage extends BaseMessage {
   type: MessageType.FlipStart;
   seed: number;
-  from?: string;
 }
 
 export interface FlipResultMessage extends BaseMessage {
@@ -31,7 +30,6 @@ export interface FlipResultMessage extends BaseMessage {
     result: string; // 'heads' | 'tails' etc. Keep generic string for now
     seed?: number;
   };
-  from?: string;
 }
 
 export type IncomingMessage =
