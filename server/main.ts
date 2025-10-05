@@ -1,34 +1,19 @@
-import { spawn } from 'child_process';
-import path from 'path';
 import dotenv from 'dotenv';
+// Load environment from repo root
 dotenv.config({ path: '../.env' });
 
-function spawnNode(scriptName: string, args: string[] = []) {
-  const scriptPath = path.join(process.cwd(), scriptName);
-  const child = spawn(process.execPath, [scriptPath, ...args], {
-    stdio: ['ignore', 'pipe', 'pipe'],
-    env: process.env,
-  });
+// Import servers to run them in-process. Both modules start their servers
+// during module initialization (they call listen / create server at top-level),
+// so simply importing them is sufficient for local development.
+import './webserver';
+import './websocket-server';
 
-  child.stdout.on('data', (d) => process.stdout.write(`[${scriptName}] ${d}`));
-  child.stderr.on('data', (d) => process.stderr.write(`[${scriptName} ERR] ${d}`));
-
-  child.on('exit', (code, sig) => {
-    console.log(`${scriptName} exited with ${code ?? sig}`);
-  });
-
-  return child;
-}
-
-console.log('Starting webserver and websocket server...');
-
-const webserver = spawnNode('webserver.js');
-const websocket = spawnNode('websocket-server.js');
+console.log('Started webserver and websocket server in-process');
 
 function shutdown() {
-  console.log('Shutting down child processes...');
-  webserver.kill();
-  websocket.kill();
+  console.log('Shutting down servers...');
+  // If the server modules expose explicit shutdown hooks in the future,
+  // call them here. For now, just exit the process which will close sockets.
   process.exit(0);
 }
 
