@@ -21,7 +21,7 @@ if (isInIframe) {
   defaultUrl = `wss://${metaVars.VITE_DISCORD_CLIENT_ID}.discordsays.com/.proxy/ws`;
 }
 
-export function useWebsocket(roomId = 'default-room', url = defaultUrl) {
+export function useWebsocket(roomId = 'default-room') {
   const wsRef = useRef<WebSocket | null>(null);
   const setStartFlip = useSetAtom(startFlipAtom);
   const setSeed = useSetAtom(seedAtom);
@@ -50,7 +50,7 @@ export function useWebsocket(roomId = 'default-room', url = defaultUrl) {
   );
 
   useEffect(() => {
-    const ws = new WebSocket(url);
+    const ws = new WebSocket(defaultUrl);
     wsRef.current = ws;
 
     ws.onopen = () => {
@@ -91,7 +91,7 @@ export function useWebsocket(roomId = 'default-room', url = defaultUrl) {
       } catch (e) {}
       wsRef.current = null;
     };
-  }, [url, roomId, setPushIncoming]);
+  }, [roomId, setPushIncoming]);
 
   const send = useCallback((message: OutgoingMessage) => {
     const ws = wsRef.current;
