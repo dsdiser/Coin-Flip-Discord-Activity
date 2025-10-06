@@ -1,11 +1,7 @@
 import { APP } from './honoDef';
 import './websocket-server';
 
-console.log('Started webserver and websocket server');
-
-APP.get('*', async (c) => {
-  return c.text('Hello from Cloudflare Worker');
-});
+console.log('Started webserver and websocket server on port');
 
 APP.post('/api/token', async (c: any) => {
   const ip = c.req.header('x-forwarded-for') || (c.req as any).conn?.remoteAddr || 'unknown';

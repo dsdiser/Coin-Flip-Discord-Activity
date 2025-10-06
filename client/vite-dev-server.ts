@@ -8,7 +8,7 @@ interface DevServerOptions {
 
 // Lightweight dev server plugin inspired by honojs/vite-plugins dev-server
 export default function viteDevServer(opts: DevServerOptions = {}): Plugin {
-  const watchPaths = opts.watch || ['../server', '../wrangler.jsonc', '../src'];
+  const watchPaths = opts.watch;
   let server: any;
 
   return {
@@ -16,7 +16,6 @@ export default function viteDevServer(opts: DevServerOptions = {}): Plugin {
     apply: 'serve',
     configureServer(s) {
       server = s;
-
       // Watch provided paths and trigger full page reload on change
       const resolved = watchPaths.map((p) => path.resolve(process.cwd(), p)).filter(Boolean);
 
@@ -30,7 +29,6 @@ export default function viteDevServer(opts: DevServerOptions = {}): Plugin {
 
       s.watcher.on('change', (file: string) => {
         // Only trigger reload for server-side files (outside client)
-        const rel = path.relative(path.resolve(process.cwd(), 'src'), file);
         const isServerFile = !file.includes(path.resolve(process.cwd(), 'src'));
         console.debug(`[vite-dev-server] file changed: ${file}, serverFile=${isServerFile}`);
 

@@ -53,7 +53,6 @@ export function useWebsocket(roomId = 'default-room') {
     wsRef.current = ws;
 
     ws.onopen = () => {
-      // send join message
       const join: OutgoingMessage = {
         type: 'join',
         roomId,

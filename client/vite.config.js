@@ -10,9 +10,8 @@ export default defineConfig({
     react(),
     cloudflare(),
     viteDevServer({
-      cloudflare:
-        process.env.VITE_DEV_CLOUDFLARE === '1' || process.env.VITE_DEV_CLOUDFLARE === 'true',
-      watch: ['../server', '../wrangler.toml'],
+      cloudflare: false,
+      watch: ['../server', './wrangler.jsonc'],
     }),
   ],
   server: {
@@ -24,7 +23,7 @@ export default defineConfig({
       },
       // Proxy websocket connections if client tries to connect to /ws
       '/ws': {
-        target: 'ws://localhost:8787',
+        target: 'ws://localhost:5173',
         ws: true,
         changeOrigin: true,
         secure: false,
