@@ -2,12 +2,12 @@ import { Plugin } from 'vite';
 import path from 'path';
 
 interface DevServerOptions {
-  watch?: string[]; // additional paths to watch
+  watch: string[]; // additional paths to watch
   cloudflare?: boolean; // enable cloudflare mode (adjust websocket url)
 }
 
 // Lightweight dev server plugin inspired by honojs/vite-plugins dev-server
-export default function viteDevServer(opts: DevServerOptions = {}): Plugin {
+export default function viteDevServer(opts: DevServerOptions): Plugin {
   const watchPaths = opts.watch;
   let server: any;
 

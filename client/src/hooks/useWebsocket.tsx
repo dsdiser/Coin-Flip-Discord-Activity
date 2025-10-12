@@ -8,11 +8,13 @@ import {
   FlipStartMessage,
 } from '../state/websocketAtoms';
 import { seedAtom, startFlipAtom } from '../state/coinAtoms';
+import { hc } from 'hono/client';
+// import { type appType } from '../../../server/main';
 
 const metaVars = (import.meta as any).env;
 
 const isInIframe = window.self !== window.top;
-let defaultUrl = `wss://${metaVars.VITE_URL}/ws`;
+let defaultUrl = `http://${metaVars.VITE_URL}/`;
 // In discord iframe can only connect to a websocket that is in proxy
 // Instead of example.com/ws, you use <appid>.discordsays.com/.proxy/ws
 // Make sure the redirect is set up in application's activity URL mappings in dev console
@@ -49,47 +51,67 @@ export function useWebsocket(roomId = 'default-room') {
   );
 
   useEffect(() => {
-    const ws = new WebSocket(defaultUrl);
-    wsRef.current = ws;
-
-    ws.onopen = () => {
-      const join: OutgoingMessage = {
-        type: 'join',
-        roomId,
-        timestamp: Date.now(),
-      } as OutgoingMessage;
-      ws.send(JSON.stringify(join));
-    };
-
-    ws.onmessage = (evt: MessageEvent<string>) => {
-      try {
-        const parsed = JSON.parse(evt.data) as IncomingMessage;
-        // Basic validation: must have type
-        if (!parsed || typeof parsed.type !== 'string') {
-          console.warn('Malformed incoming message (missing type)', parsed);
-          return;
-        }
-        handleMessage(parsed);
-      } catch (err) {
-        console.warn('Failed to parse websocket message', err);
+    const pingServer = async () => {
+      const client = hc<appType>('/');
+      const res = await client.ping.$get();
+      if (res.status === 200) {
+        console.log('Ping successful to websocket server', await res.text());
+      } else {
+        console.warn('Ping to websocket server failed with status', res.status);
       }
     };
+    pingServer();
+  }, []);
 
-    ws.onerror = (err) => {
-      console.warn('Websocket error', err);
-    };
+  useEffect(
+    () => {
+      // const ws = new WebSocket(defaultUrl);
+      const client = hc<appType>(defaultUrl);
+      const ws = client.ws.$ws(0);
+      wsRef.current = ws;
 
-    ws.onclose = () => {
-      // noop for now
-    };
+      // ws.onopen = () => {
+      //   const join: OutgoingMessage = {
+      //     type: 'join',
+      //     roomId,
+      //     timestamp: Date.now(),
+      //   } as OutgoingMessage;
+      //   ws.send(JSON.stringify(join));
+      // };
 
-    return () => {
-      try {
-        ws.close();
-      } catch (e) {}
-      wsRef.current = null;
-    };
-  }, [roomId, setPushIncoming]);
+      // ws.onmessage = (evt: MessageEvent<string>) => {
+      //   try {
+      //     const parsed = JSON.parse(evt.data) as IncomingMessage;
+      //     // Basic validation: must have type
+      //     if (!parsed || typeof parsed.type !== 'string') {
+      //       console.warn('Malformed incoming message (missing type)', parsed);
+      //       return;
+      //     }
+      //     handleMessage(parsed);
+      //   } catch (err) {
+      //     console.warn('Failed to parse websocket message', err);
+      //   }
+      // };
+
+      // ws.onerror = (err) => {
+      //   console.warn('Websocket error', err);
+      // };
+
+      // ws.onclose = () => {
+      //   // noop for now
+      // };
+
+      // return () => {
+      //   try {
+      //     ws.close();
+      //   } catch (e) {}
+      //   wsRef.current = null;
+      // };
+    },
+    [
+      // roomId, setPushIncoming
+    ]
+  );
 
   const send = useCallback((message: OutgoingMessage) => {
     const ws = wsRef.current;
