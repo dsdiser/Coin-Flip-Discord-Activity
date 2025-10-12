@@ -17,18 +17,21 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost',
+        target: 'http://localhost:8787',
+        changeOrigin: true,
         secure: false,
       },
       '/ping': {
-        target: 'http://localhost',
+        target: 'http://localhost:8787',
+        changeOrigin: true,
         secure: false,
       },
       // Proxy websocket connections if client tries to connect to /ws
       '/ws': {
-        target: 'ws://localhost',
+        target: 'http://localhost:8787',
         ws: true,
-        rewriteWsOrigin: true,
+        rewrite: (path) => path, // preserve path
+        changeOrigin: true,
         secure: false,
       },
     },

@@ -9,7 +9,7 @@ import {
 } from '../state/websocketAtoms';
 import { seedAtom, startFlipAtom } from '../state/coinAtoms';
 import { hc } from 'hono/client';
-// import { type appType } from '../../../server/main';
+import { type appType } from '../../../worker/main';
 
 const metaVars = (import.meta as any).env;
 
