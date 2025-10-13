@@ -6,12 +6,17 @@ import {
   OutgoingMessage,
   MessageType,
   FlipStartMessage,
+  JoinMessage,
 } from '../state/websocketAtoms';
 import { seedAtom, startFlipAtom } from '../state/coinAtoms';
 import { hc } from 'hono/client';
 import { type appType } from '../../../worker/main';
 
 const metaVars = (import.meta as any).env;
+
+function createMessageId() {
+  return Math.random().toString(36).substring(2) + Date.now().toString(36);
+}
 
 const isInIframe = window.self !== window.top;
 let defaultUrl = `http://${metaVars.VITE_URL}/`;
@@ -34,6 +39,7 @@ export function useWebsocket(roomId = 'default-room') {
       // We can then use the atoms directly or use atomWithListeners to use a callback
       switch (parsedMessage.type) {
         case MessageType.Join:
+          // FIGURE OUT HOW TO HANDLE LOBBY STATE, NEED LOBBY WITH USER IDS, NAMES, IMAGES, ETC
           break;
         case MessageType.FlipStart:
           setStartFlip(true);
@@ -63,70 +69,66 @@ export function useWebsocket(roomId = 'default-room') {
     pingServer();
   }, []);
 
-  useEffect(
-    () => {
-      // const ws = new WebSocket(defaultUrl);
-      const client = hc<appType>(defaultUrl);
-      const ws = client.ws.$ws(0);
-      wsRef.current = ws;
+  useEffect(() => {
+    // const ws = new WebSocket(defaultUrl);
+    const client = hc<appType>(defaultUrl);
+    const ws = client.ws.$ws(0);
+    wsRef.current = ws;
 
-      // ws.onopen = () => {
-      //   const join: OutgoingMessage = {
-      //     type: 'join',
-      //     roomId,
-      //     timestamp: Date.now(),
-      //   } as OutgoingMessage;
-      //   ws.send(JSON.stringify(join));
-      // };
+    ws.onopen = () => {
+      const join: OutgoingMessage = {
+        type: 'join',
+        roomId,
+        id: createMessageId(),
+        timestamp: Date.now(),
+      } as JoinMessage;
+      ws.send(JSON.stringify(join));
+    };
 
-      // ws.onmessage = (evt: MessageEvent<string>) => {
-      //   try {
-      //     const parsed = JSON.parse(evt.data) as IncomingMessage;
-      //     // Basic validation: must have type
-      //     if (!parsed || typeof parsed.type !== 'string') {
-      //       console.warn('Malformed incoming message (missing type)', parsed);
-      //       return;
-      //     }
-      //     handleMessage(parsed);
-      //   } catch (err) {
-      //     console.warn('Failed to parse websocket message', err);
-      //   }
-      // };
+    ws.onmessage = (evt: MessageEvent<string>) => {
+      try {
+        const parsed = JSON.parse(evt.data) as IncomingMessage;
+        console.debug('Received websocket message', parsed);
+        // Basic validation: must have type
+        if (!parsed || typeof parsed.type !== 'string') {
+          console.warn('Malformed incoming message (missing type)', parsed);
+          return;
+        }
+        handleMessage(parsed);
+      } catch (err) {
+        console.warn('Failed to parse websocket message', err);
+      }
+    };
 
-      // ws.onerror = (err) => {
-      //   console.warn('Websocket error', err);
-      // };
+    ws.onerror = (err) => {
+      console.warn('Websocket error', err);
+    };
 
-      // ws.onclose = () => {
-      //   // noop for now
-      // };
+    ws.onclose = () => {
+      // noop for now
+      ws.close();
+    };
 
-      // return () => {
-      //   try {
-      //     ws.close();
-      //   } catch (e) {}
-      //   wsRef.current = null;
-      // };
-    },
-    [
-      // roomId, setPushIncoming
-    ]
-  );
+    return () => {
+      try {
+        ws.close();
+      } catch (e) {}
+      wsRef.current = null;
+    };
+  }, [roomId, setPushIncoming]);
 
   const send = useCallback((message: OutgoingMessage) => {
-    const ws = wsRef.current;
-    if (!ws || ws.readyState !== WebSocket.OPEN) {
+    if (wsRef.current?.readyState !== WebSocket.OPEN) {
       console.warn('Websocket not open, cannot send');
       return;
     }
-    // generate random id for message via simple random + timestamp
-    message.id = Math.random().toString(36).substring(2) + Date.now().toString(36);
+    message.id = createMessageId();
     message.roomId = roomId;
     const stringifiedMessage = JSON.stringify(message);
-    ws.send(stringifiedMessage);
+    wsRef.current?.send(stringifiedMessage);
   }, []);
 
-  return { send, connectionStatus: wsRef.current?.readyState };
+  return { send, connectionStatus: wsRef.current };
 }
 
 export default useWebsocket;

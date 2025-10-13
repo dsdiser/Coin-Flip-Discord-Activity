@@ -29,8 +29,6 @@ export default defineConfig({
       // Proxy websocket connections if client tries to connect to /ws
       '/ws': {
         target: 'http://localhost:8787',
-        ws: true,
-        rewrite: (path) => path, // preserve path
         changeOrigin: true,
         secure: false,
       },

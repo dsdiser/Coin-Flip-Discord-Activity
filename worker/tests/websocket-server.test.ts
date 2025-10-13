@@ -32,8 +32,8 @@ describe('websocket helpers', () => {
     const ws1 = createMockWS({ type: 'join', id: 'user1', roomId: 'roomA' }) as any;
     const ws2 = createMockWS({ type: 'join', id: 'user2', roomId: 'roomA' }) as any;
 
-    joinRoom('roomA', 'user1', 'addr1', ws1);
-    joinRoom('roomA', 'user2', 'addr2', ws2);
+    joinRoom('roomA', 'user1', ws1);
+    joinRoom('roomA', 'user2', ws2);
 
     expect(rooms.has('roomA')).toBe(true);
     const set = rooms.get('roomA')!;
