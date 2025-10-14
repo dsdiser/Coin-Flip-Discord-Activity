@@ -1,5 +1,5 @@
 import { useEffect, useRef, useCallback } from 'react';
-import { useSetAtom } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import {
   pushIncomingAtom,
   IncomingMessage,
@@ -11,6 +11,7 @@ import {
 import { seedAtom, startFlipAtom } from '../state/coinAtoms';
 import { hc } from 'hono/client';
 import { type appType } from '../../../worker/main';
+import { userAtom } from '../state/userAtoms';
 
 const metaVars = (import.meta as any).env;
 
@@ -29,6 +30,7 @@ if (isInIframe) {
 
 export function useWebsocket(roomId: string) {
   const wsRef = useRef<WebSocket | null>(null);
+  const user = useAtomValue(userAtom);
   const setStartFlip = useSetAtom(startFlipAtom);
   const setSeed = useSetAtom(seedAtom);
   const setPushIncoming = useSetAtom(pushIncomingAtom);
@@ -122,7 +124,12 @@ export function useWebsocket(roomId: string) {
       console.warn('Websocket not open, cannot send');
       return;
     }
+    if (!user) {
+      console.warn('No user, cannot send message');
+      return;
+    }
     message.id = createMessageId();
+    message.userId = user.id;
     message.roomId = roomId;
     const stringifiedMessage = JSON.stringify(message);
     wsRef.current?.send(stringifiedMessage);

@@ -3,7 +3,7 @@ import { DiscordSDK } from '@discord/embedded-app-sdk';
 import LoadingScreen from '../components/loading-screen/LoadingScreen';
 import { OAuthScopes } from '@discord/embedded-app-sdk/output/schema/types';
 import type { Auth, User } from '../types/user';
-import { useAtom, useSetAtom } from 'jotai';
+import { useSetAtom } from 'jotai';
 import { userAtom } from '../state/userAtoms';
 
 export enum Status {
@@ -47,27 +47,38 @@ const DiscordContext = createContext<DiscordContextValue | undefined>(undefined)
 
 interface ProviderProps {
   children: ReactNode;
-  authenticate: boolean; // Whether to perform auth to discord on mount. If not create mock user
+  authenticateWithDiscord: boolean; // Whether to perform auth to discord on mount. If not create mock user
   scope?: OAuthScopes[];
   loadingScreen?: ReactNode;
 }
 
 export const DiscordContextProvider: React.FC<ProviderProps> = ({
   children,
-  authenticate = false,
+  authenticateWithDiscord = false,
   scope = ['identify', 'guilds'],
   loadingScreen = <LoadingScreen />,
 }) => {
   const clientId = (import.meta as any).env?.VITE_DISCORD_CLIENT_ID;
   const sdkRef = useRef<DiscordSDK | undefined>(undefined);
-  const [status, setStatus] = useState<Status>(Status.Idle);
+  const [status, setStatus] = useState<Status>(Status.Authenticating);
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [authenticated, setAuthenticated] = useState(false);
   const setUser = useSetAtom(userAtom);
   const [auth, setAuth] = useState<any | null>(null);
   const [error, setError] = useState<Error | null>(null);
+  // Ensure global user is set to a mock when we're not authenticating with Discord
+  useEffect(() => {
+    if (!authenticateWithDiscord) {
+      setUser(MOCK_USER);
+      setAuthenticated(true);
+      setStatus(Status.Authenticated);
+      setAuth({ user: MOCK_USER });
+    }
+    // only run when `authenticateWithDiscord` changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [authenticateWithDiscord]);
 
-  if (!sdkRef.current && clientId && status != Status.Error && authenticate) {
+  if (!sdkRef.current && clientId && status != Status.Error && authenticateWithDiscord) {
     try {
       sdkRef.current = new DiscordSDK(clientId);
     } catch (err) {
@@ -91,7 +102,7 @@ export const DiscordContextProvider: React.FC<ProviderProps> = ({
         if (!mounted) return;
         setStatus(Status.Ready);
 
-        if (!authenticate) return;
+        if (!authenticateWithDiscord) return;
 
         setStatus(Status.Authenticating);
 
@@ -140,7 +151,7 @@ export const DiscordContextProvider: React.FC<ProviderProps> = ({
     return () => {
       mounted = false;
     };
-  }, [authenticate, scope]);
+  }, [authenticateWithDiscord, scope]);
 
   const value: DiscordContextValue = {
     discordSdk: sdkRef.current,
@@ -161,11 +172,7 @@ export const DiscordContextProvider: React.FC<ProviderProps> = ({
 
 export function useDiscordSdk(): DiscordContextValue {
   const ctx = useContext(DiscordContext);
-  const setUser = useSetAtom(userAtom);
-  if (!ctx) {
-    setUser(MOCK_USER);
-    return MOCK_DISCORD_CONTEXT_VALUE;
-  }
+  if (!ctx) return MOCK_DISCORD_CONTEXT_VALUE;
   return ctx;
 }
 

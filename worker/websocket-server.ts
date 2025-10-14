@@ -76,7 +76,7 @@ export const WebSocketApp = new Hono().get(
           console.warn('Failed to handle message', err);
         }
       },
-      onClose: (event, ws) => {
+      onClose: (_event, ws) => {
         if (ws) {
           leaveRoom(ws);
         }

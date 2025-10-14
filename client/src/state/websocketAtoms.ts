@@ -8,6 +8,7 @@ export enum MessageType {
 
 interface BaseMessage {
   type: MessageType;
+  userId: string; // ID of the user sending the message
   roomId?: string; // This is optional to allow clients to craft messages easier, but useWebsocket will always set it
   timestamp?: number;
   id: string;

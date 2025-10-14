@@ -28,7 +28,7 @@ const App: React.FC = () => {
         spinRotation={spinAmount}
       />
       <DiscordContextProvider
-        authenticate={shouldAuth}
+        authenticateWithDiscord={shouldAuth}
         scope={['identify', 'guilds', 'guilds.members.read']}
       >
         <CoinFlipApp />
