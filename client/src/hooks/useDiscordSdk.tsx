@@ -2,6 +2,9 @@ import React, { createContext, useContext, useEffect, useRef, useState, ReactNod
 import { DiscordSDK } from '@discord/embedded-app-sdk';
 import LoadingScreen from '../components/loading-screen/LoadingScreen';
 import { OAuthScopes } from '@discord/embedded-app-sdk/output/schema/types';
+import type { Auth, User } from '../types/user';
+import { useAtom, useSetAtom } from 'jotai';
+import { userAtom } from '../state/userAtoms';
 
 export enum Status {
   Idle = 'idle',
@@ -11,41 +14,40 @@ export enum Status {
   Error = 'error',
 }
 
-const MOCK_DISCORD_CONTEXT_VALUE: DiscordContextValue = {
-  discordSdk: undefined,
-  accessToken: null,
-  authenticated: false,
-  user: null,
-  auth: undefined,
-  status: Status.Error,
-  error: new Error('Discord SDK not initialized'),
-  instanceId: Math.random().toString(36).substring(2, 6), // random id for room id
-};
-
-export interface DiscordUser {
-  id: string;
-  username: string;
-  discriminator?: string;
-  avatar?: string | null;
-  global_name?: string | null;
-}
+const generateInstanceId = () => Math.random().toString(36).substring(2, 6);
 
 interface DiscordContextValue {
   discordSdk?: any;
   accessToken?: string | null;
   authenticated: boolean;
-  user: DiscordUser | null;
-  auth?: ReturnType<typeof DiscordSDK.prototype.commands.authenticate>;
+  auth?: Auth;
   status: Status;
   error?: Error | null;
-  instanceId?: string;
+  instanceId: string;
 }
+
+const MOCK_DISCORD_CONTEXT_VALUE: DiscordContextValue = {
+  discordSdk: undefined,
+  accessToken: null,
+  authenticated: false,
+  auth: undefined,
+  status: Status.Error,
+  error: new Error('Discord SDK not initialized'),
+  instanceId: generateInstanceId(),
+};
+
+const MOCK_USER: User = {
+  id: generateInstanceId(),
+  username: 'Unauthed User',
+  discriminator: '0001',
+  public_flags: 0,
+};
 
 const DiscordContext = createContext<DiscordContextValue | undefined>(undefined);
 
 interface ProviderProps {
   children: ReactNode;
-  authenticate?: boolean;
+  authenticate: boolean; // Whether to perform auth to discord on mount. If not create mock user
   scope?: OAuthScopes[];
   loadingScreen?: ReactNode;
 }
@@ -61,11 +63,10 @@ export const DiscordContextProvider: React.FC<ProviderProps> = ({
   const [status, setStatus] = useState<Status>(Status.Idle);
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [authenticated, setAuthenticated] = useState(false);
-  const [user, setUser] = useState<DiscordUser | null>(null);
+  const setUser = useSetAtom(userAtom);
   const [auth, setAuth] = useState<any | null>(null);
   const [error, setError] = useState<Error | null>(null);
 
-  // Lazily create SDK (so it can be mocked/tested easier)
   if (!sdkRef.current && clientId && status != Status.Error && authenticate) {
     try {
       sdkRef.current = new DiscordSDK(clientId);
@@ -124,8 +125,8 @@ export const DiscordContextProvider: React.FC<ProviderProps> = ({
         if (!mounted) return;
 
         setAuthenticated(true);
-        setUser(auth ? auth.user : null);
         setStatus(Status.Authenticated);
+        setUser(auth.user);
         setAuth(auth);
       } catch (err: any) {
         if (!mounted) return;
@@ -145,11 +146,10 @@ export const DiscordContextProvider: React.FC<ProviderProps> = ({
     discordSdk: sdkRef.current,
     accessToken,
     authenticated,
-    user,
     auth,
     status,
     error,
-    instanceId: sdkRef.current?.instanceId,
+    instanceId: sdkRef.current?.instanceId || generateInstanceId(),
   };
 
   if (status === Status.Authenticating && loadingScreen) {
@@ -161,8 +161,9 @@ export const DiscordContextProvider: React.FC<ProviderProps> = ({
 
 export function useDiscordSdk(): DiscordContextValue {
   const ctx = useContext(DiscordContext);
+  const setUser = useSetAtom(userAtom);
   if (!ctx) {
-    console.warn('useDiscordSdk must be used within DiscordContextProvider');
+    setUser(MOCK_USER);
     return MOCK_DISCORD_CONTEXT_VALUE;
   }
   return ctx;

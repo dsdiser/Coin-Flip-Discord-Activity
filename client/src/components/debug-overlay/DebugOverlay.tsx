@@ -8,7 +8,7 @@ export default function DebugOverlay(props: {
   error?: Error | null;
   user: any;
   auth: any;
-  websocketStatus?: number;
+  websocketStatus: number; // WebSocket status code
 }) {
   const [open, setOpen] = useState(false);
   return (
@@ -43,9 +43,7 @@ export default function DebugOverlay(props: {
           <div>
             WebSocket Status:
             <strong>
-              {props.websocketStatus === null
-                ? ' N/A'
-                : props.websocketStatus === 0
+              {props.websocketStatus === 0
                 ? ' CONNECTING'
                 : props.websocketStatus === 1
                 ? ' OPEN'

@@ -19,7 +19,7 @@ function createMessageId() {
 }
 
 const isInIframe = window.self !== window.top;
-let defaultUrl = `http://${metaVars.VITE_URL}/`;
+let defaultUrl = window.location.href;
 // In discord iframe can only connect to a websocket that is in proxy
 // Instead of example.com/ws, you use <appid>.discordsays.com/.proxy/ws
 // Make sure the redirect is set up in application's activity URL mappings in dev console
@@ -27,7 +27,7 @@ if (isInIframe) {
   defaultUrl = `wss://${metaVars.VITE_DISCORD_CLIENT_ID}.discordsays.com/.proxy/ws`;
 }
 
-export function useWebsocket(roomId = 'default-room') {
+export function useWebsocket(roomId: string) {
   const wsRef = useRef<WebSocket | null>(null);
   const setStartFlip = useSetAtom(startFlipAtom);
   const setSeed = useSetAtom(seedAtom);
@@ -61,16 +61,15 @@ export function useWebsocket(roomId = 'default-room') {
       const client = hc<appType>('/');
       const res = await client.ping.$get();
       if (res.status === 200) {
-        console.log('Ping successful to websocket server', await res.text());
+        console.log('Ping successful to server', await res.text());
       } else {
-        console.warn('Ping to websocket server failed with status', res.status);
+        console.warn('Ping to server failed with status', res.status);
       }
     };
     pingServer();
   }, []);
 
   useEffect(() => {
-    // const ws = new WebSocket(defaultUrl);
     const client = hc<appType>(defaultUrl);
     const ws = client.ws.$ws(0);
     wsRef.current = ws;
@@ -106,6 +105,7 @@ export function useWebsocket(roomId = 'default-room') {
 
     ws.onclose = () => {
       // noop for now
+      console.debug('Websocket closed.');
       ws.close();
     };
 
@@ -128,7 +128,7 @@ export function useWebsocket(roomId = 'default-room') {
     wsRef.current?.send(stringifiedMessage);
   }, []);
 
-  return { send, connectionStatus: wsRef.current };
+  return { send, connectionStatus: wsRef.current?.readyState || WebSocket.CLOSED };
 }
 
 export default useWebsocket;

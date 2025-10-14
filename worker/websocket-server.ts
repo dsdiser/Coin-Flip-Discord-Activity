@@ -16,6 +16,7 @@ export function joinRoom(roomId: string, userId: string, ws: WSContext) {
     rooms.set(roomId, new Set<RoomMember>());
   }
   rooms.get(roomId)!.add({ userId, ws });
+  console.debug('Rooms:', rooms);
 }
 
 export function leaveRoom(ws: WSContext) {
@@ -48,12 +49,11 @@ export function broadcastToRoom(roomId: string, data: any) {
 export const WebSocketApp = new Hono().get(
   '/',
   upgradeWebSocket((_c) => {
-    let roomId: string = 'none';
     return {
       onMessage(event, ws) {
         try {
           const msg = JSON.parse(event.data.toString());
-          roomId = msg.roomId;
+          const roomId = msg.roomId;
           // Handle join specially
           if (msg && msg.type === 'join' && typeof msg.id === 'string') {
             console.debug(`User ${msg.id} joining room ${roomId}`);
@@ -77,7 +77,6 @@ export const WebSocketApp = new Hono().get(
         }
       },
       onClose: (event, ws) => {
-        console.debug('Client disconnected, leaving room');
         if (ws) {
           leaveRoom(ws);
         }
