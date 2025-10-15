@@ -11,6 +11,8 @@ import BalatroBackground from './components/balatro-background/BalatroBackground
 import { spinAmountAtom } from './state/backgroundAtoms';
 import { setRandomSeedAtom, seedAtom } from './state/coinAtoms';
 import { userAtom } from './state/userAtoms';
+import { Avatar } from './components/avatar/Avatar';
+import { AvatarOverlay } from './components/avatar-overlay/AvatarOverlay';
 
 const App: React.FC = () => {
   const [spinAmount, _setSpinAmount] = useAtom(spinAmountAtom);
@@ -78,6 +80,11 @@ const CoinFlipApp: React.FC = () => {
           user={user}
           auth={auth}
           websocketStatus={connectionStatus}
+        />
+        <AvatarOverlay
+          users={[user, user, user, user, user, user, user, user]}
+          guildId={''}
+          accessToken={accessToken}
         />
         <div className={appStyles.player}>
           <div className={appStyles.coinArea}>

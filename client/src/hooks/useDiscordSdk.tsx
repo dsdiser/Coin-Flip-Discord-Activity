@@ -15,6 +15,7 @@ export enum Status {
 }
 
 const generateInstanceId = () => Math.random().toString(36).substring(2, 6);
+const generateUserId = () => (Math.floor(Math.random() * 9000) + 1000).toString();
 
 interface DiscordContextValue {
   discordSdk?: any;
@@ -37,7 +38,7 @@ const MOCK_DISCORD_CONTEXT_VALUE: DiscordContextValue = {
 };
 
 const MOCK_USER: User = {
-  id: generateInstanceId(),
+  id: generateUserId(),
   username: 'Unauthed User',
   discriminator: '0001',
   public_flags: 0,
