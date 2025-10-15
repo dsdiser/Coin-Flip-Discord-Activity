@@ -7,6 +7,7 @@ TODOS
   Make sure to use acceptWebsocket so it can hibernate as needed
 
 Long term TODO:
+- Shake profiles when spinning. 
 - Add animation for moving coin value to user profile
 - Mouse cursor tracking for each of the users
 
