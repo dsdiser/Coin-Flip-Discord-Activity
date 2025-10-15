@@ -11,7 +11,7 @@ import BalatroBackground from './components/balatro-background/BalatroBackground
 import { spinAmountAtom } from './state/backgroundAtoms';
 import { setRandomSeedAtom, seedAtom } from './state/coinAtoms';
 import { userAtom } from './state/userAtoms';
-import { Avatar } from './components/avatar/Avatar';
+import { roomMembersAtom } from './state/websocketAtoms';
 import { AvatarOverlay } from './components/avatar-overlay/AvatarOverlay';
 
 const App: React.FC = () => {
@@ -43,6 +43,7 @@ const CoinFlipApp: React.FC = () => {
   const { status, authenticated, accessToken, auth, error, instanceId } = useDiscordSdk();
   const [history, setHistory] = useState<Array<{ result: CoinResult; timestamp: number }>>([]);
   const user = useAtomValue(userAtom);
+  const roomMembers = useAtomValue(roomMembersAtom);
   const seed = useAtomValue(seedAtom);
   const setRandomSeed = useSetAtom(setRandomSeedAtom);
   const { send, connectionStatus } = useWebsocket(instanceId);
@@ -57,7 +58,6 @@ const CoinFlipApp: React.FC = () => {
     send({
       type: 'flip:start',
       seed: seed,
-      timestamp: Date.now(),
     });
   };
 
@@ -71,26 +71,25 @@ const CoinFlipApp: React.FC = () => {
   }
   return (
     <>
+      <AvatarOverlay
+        users={roomMembers.map((m) => ({ id: m.id, avatar: m.avatar ?? null }))}
+        guildId={''}
+        accessToken={accessToken}
+      />
+      <DebugOverlay
+        status={status}
+        authenticated={authenticated}
+        accessToken={accessToken}
+        error={error}
+        user={user}
+        auth={auth}
+        websocketStatus={connectionStatus}
+      />
       <div className={appStyles.app}>
-        <DebugOverlay
-          status={status}
-          authenticated={authenticated}
-          accessToken={accessToken}
-          error={error}
-          user={user}
-          auth={auth}
-          websocketStatus={connectionStatus}
-        />
-        <AvatarOverlay
-          users={[user, user, user, user, user, user, user, user]}
-          guildId={''}
-          accessToken={accessToken}
-        />
         <div className={appStyles.player}>
           <div className={appStyles.coinArea}>
             <Coin onFlip={handleFlipSend} onComplete={onFlipResult} />
           </div>
-
           {history.length > 0 && (
             <div className={appStyles.history}>
               <h3>History</h3>
