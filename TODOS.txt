@@ -1,15 +1,16 @@
 TODOS
-- Add spinning when animation is playing
-- Add multiple user profiles
-- Mouse cursor tracking for each of the users
-- Add animation for moving coin value to user profile
+- Add background spinning when animation is playing
 - Slow down the coin flip before animation finishes
 - Change background to the color of whatever side
 - Get assets for coin, bot, etc
 - Set up cloudflare durable object, need to refactor. 
   Make sure to use acceptWebsocket so it can hibernate as needed
 
+Long term TODO:
+- Add animation for moving coin value to user profile
+- Mouse cursor tracking for each of the users
 
 Done:
 - Fix coin flip animation
 - Write websocket impl
+- Add multiple user profiles
