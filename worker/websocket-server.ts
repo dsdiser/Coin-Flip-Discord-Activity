@@ -4,7 +4,7 @@ import { Hono } from 'hono';
 
 interface RoomMember {
   userId: string;
-  address?: string;
+  avatar?: string;
   ws: WSContext;
 }
 // Map roomId -> Set of ws clients
@@ -15,7 +15,19 @@ export function joinRoom(roomId: string, userId: string, ws: WSContext) {
     console.debug(`Creating new room ${roomId}`);
     rooms.set(roomId, new Set<RoomMember>());
   }
-  rooms.get(roomId)!.add({ userId, ws });
+  // TODO: fetch user avatar here
+  const avatar = '';
+  rooms.get(roomId)!.add({ userId, ws, avatar });
+  // Broadcast presence to everyone in the room
+  const presence = JSON.stringify({
+    type: 'presence',
+    roomId,
+    members: Array.from(rooms.get(roomId)!).map((m) => ({
+      id: m.userId,
+      avatar: m.avatar ?? null,
+    })),
+  });
+  broadcastToRoom(roomId, presence);
   console.debug('Rooms:', rooms);
 }
 
@@ -25,6 +37,13 @@ export function leaveRoom(ws: WSContext) {
     for (const member of members) {
       if (member.ws === ws) {
         members.delete(member);
+        // Broadcast updated presence to remaining members
+        const presenceMsg = JSON.stringify({
+          type: 'presence',
+          roomId,
+          members: Array.from(members).map((m) => ({ id: m.userId, avatar: m.avatar ?? null })),
+        });
+        broadcastToRoom(roomId, presenceMsg);
         if (members.size === 0) rooms.delete(roomId);
         return;
       }
@@ -55,9 +74,9 @@ export const WebSocketApp = new Hono().get(
           const msg = JSON.parse(event.data.toString());
           const roomId = msg.roomId;
           // Handle join specially
-          if (msg && msg.type === 'join' && typeof msg.id === 'string') {
-            console.debug(`User ${msg.id} joining room ${roomId}`);
-            joinRoom(roomId, msg.id, ws);
+          if (msg && msg.type === 'join' && typeof msg.userId === 'string') {
+            console.debug(`User ${msg.userId} joining room ${roomId}`);
+            joinRoom(roomId, msg.userId, ws);
             const ack = JSON.stringify({
               type: 'joined',
               roomId: roomId,

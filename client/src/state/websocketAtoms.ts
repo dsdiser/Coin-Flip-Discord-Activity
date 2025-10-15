@@ -1,9 +1,11 @@
 import { atom } from 'jotai';
+import { RemoteMember } from './userAtoms';
 
 export enum MessageType {
   Join = 'join',
   FlipStart = 'flip:start',
   FlipResult = 'flip:result',
+  Presence = 'presence',
 }
 
 interface BaseMessage {
@@ -25,6 +27,11 @@ export interface FlipStartMessage extends BaseMessage {
   seed: number;
 }
 
+export interface PresenceMessage extends BaseMessage {
+  type: MessageType.Presence;
+  members: Array<RemoteMember>;
+}
+
 export interface FlipResultMessage extends BaseMessage {
   type: MessageType.FlipResult;
   payload: {
@@ -37,6 +44,7 @@ export type IncomingMessage =
   | JoinMessage
   | FlipStartMessage
   | FlipResultMessage
+  | PresenceMessage
   | ({ type: string } & Record<string, unknown>);
 
 export type OutgoingMessage = IncomingMessage | ({ type: string } & Record<string, unknown>);

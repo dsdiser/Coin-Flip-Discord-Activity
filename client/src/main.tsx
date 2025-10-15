@@ -10,9 +10,9 @@ import Coin, { CoinResult } from './components/coin/Coin';
 import BalatroBackground from './components/balatro-background/BalatroBackground';
 import { spinAmountAtom } from './state/backgroundAtoms';
 import { setRandomSeedAtom, seedAtom } from './state/coinAtoms';
-import { userAtom } from './state/userAtoms';
-import { roomMembersAtom } from './state/websocketAtoms';
+import { userAtom, roomMembersAtom } from './state/userAtoms';
 import { AvatarOverlay } from './components/avatar-overlay/AvatarOverlay';
+import { MessageType } from './state/websocketAtoms';
 
 const App: React.FC = () => {
   const [spinAmount, _setSpinAmount] = useAtom(spinAmountAtom);
@@ -46,7 +46,8 @@ const CoinFlipApp: React.FC = () => {
   const roomMembers = useAtomValue(roomMembersAtom);
   const seed = useAtomValue(seedAtom);
   const setRandomSeed = useSetAtom(setRandomSeedAtom);
-  const { send, connectionStatus } = useWebsocket(instanceId);
+  // TODO replace this with instanceId
+  const { send, connectionStatus } = useWebsocket('default');
 
   function onFlipResult(result: CoinResult) {
     setRandomSeed();
@@ -56,7 +57,7 @@ const CoinFlipApp: React.FC = () => {
   const handleFlipSend = () => {
     if (!user) return;
     send({
-      type: 'flip:start',
+      type: MessageType.FlipStart,
       seed: seed,
     });
   };

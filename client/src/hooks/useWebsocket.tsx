@@ -7,11 +7,13 @@ import {
   MessageType,
   FlipStartMessage,
   JoinMessage,
+  PresenceMessage,
 } from '../state/websocketAtoms';
 import { seedAtom, startFlipAtom } from '../state/coinAtoms';
 import { hc } from 'hono/client';
 import { type appType } from '../../../worker/main';
 import { userAtom } from '../state/userAtoms';
+import { type RemoteMember, roomMembersAtom } from '../state/userAtoms';
 
 const metaVars = (import.meta as any).env;
 
@@ -34,6 +36,7 @@ export function useWebsocket(roomId: string) {
   const setStartFlip = useSetAtom(startFlipAtom);
   const setSeed = useSetAtom(seedAtom);
   const setPushIncoming = useSetAtom(pushIncomingAtom);
+  const setRoomMembers = useSetAtom(roomMembersAtom);
 
   const handleMessage = useCallback(
     (parsedMessage: IncomingMessage) => {
@@ -41,7 +44,11 @@ export function useWebsocket(roomId: string) {
       // We can then use the atoms directly or use atomWithListeners to use a callback
       switch (parsedMessage.type) {
         case MessageType.Join:
-          // FIGURE OUT HOW TO HANDLE LOBBY STATE, NEED LOBBY WITH USER IDS, NAMES, IMAGES, ETC
+          // legacy join acknowledgement - ignore or use if needed
+          break;
+        case MessageType.Presence:
+          const members = (parsedMessage as PresenceMessage).members as Array<RemoteMember>;
+          setRoomMembers(members);
           break;
         case MessageType.FlipStart:
           setStartFlip(true);
@@ -77,13 +84,7 @@ export function useWebsocket(roomId: string) {
     wsRef.current = ws;
 
     ws.onopen = () => {
-      const join: OutgoingMessage = {
-        type: 'join',
-        roomId,
-        id: createMessageId(),
-        timestamp: Date.now(),
-      } as JoinMessage;
-      ws.send(JSON.stringify(join));
+      send({ type: MessageType.Join, roomId });
     };
 
     ws.onmessage = (evt: MessageEvent<string>) => {
@@ -131,6 +132,7 @@ export function useWebsocket(roomId: string) {
     message.id = createMessageId();
     message.userId = user.id;
     message.roomId = roomId;
+    message.timestamp = Date.now();
     const stringifiedMessage = JSON.stringify(message);
     wsRef.current?.send(stringifiedMessage);
   }, []);
