@@ -4,7 +4,7 @@ import { Avatar } from '../avatar/Avatar';
 
 type UserLike = {
   id: string;
-  avatar?: string | null;
+  avatar?: string;
 };
 
 interface AvatarOverlayProps {
@@ -37,7 +37,7 @@ export const AvatarOverlay: React.FC<AvatarOverlayProps> = ({
             key={u.id}
             guildId={guildId}
             accessToken={accessToken}
-            avatar={u.avatar ?? null}
+            avatar={u.avatar}
             userId={u.id}
           />
         ))}

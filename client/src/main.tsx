@@ -72,7 +72,7 @@ const CoinFlipApp: React.FC = () => {
   return (
     <>
       <AvatarOverlay
-        users={roomMembers.map((m) => ({ id: m.id, avatar: m.avatar ?? null }))}
+        users={roomMembers.map((m) => ({ id: m.id, avatar: m.avatar }))}
         guildId={''}
         accessToken={accessToken}
       />
