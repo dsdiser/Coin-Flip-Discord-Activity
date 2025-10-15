@@ -10,13 +10,16 @@ interface RoomMember {
 // Map roomId -> Set of ws clients
 export const rooms = new Map<string, Set<RoomMember>>();
 
-export function joinRoom(roomId: string, userId: string, ws: WSContext) {
+export function joinRoom(
+  roomId: string,
+  userId: string,
+  avatar: string | undefined,
+  ws: WSContext
+) {
   if (!rooms.has(roomId)) {
     console.debug(`Creating new room ${roomId}`);
     rooms.set(roomId, new Set<RoomMember>());
   }
-  // TODO: fetch user avatar here
-  const avatar = '';
   rooms.get(roomId)!.add({ userId, ws, avatar });
   // Broadcast presence to everyone in the room
   const presence = JSON.stringify({
@@ -24,7 +27,7 @@ export function joinRoom(roomId: string, userId: string, ws: WSContext) {
     roomId,
     members: Array.from(rooms.get(roomId)!).map((m) => ({
       id: m.userId,
-      avatar: m.avatar ?? null,
+      avatar: m.avatar,
     })),
   });
   broadcastToRoom(roomId, presence);
@@ -41,7 +44,7 @@ export function leaveRoom(ws: WSContext) {
         const presenceMsg = JSON.stringify({
           type: 'presence',
           roomId,
-          members: Array.from(members).map((m) => ({ id: m.userId, avatar: m.avatar ?? null })),
+          members: Array.from(members).map((m) => ({ id: m.userId, avatar: m.avatar })),
         });
         broadcastToRoom(roomId, presenceMsg);
         if (members.size === 0) rooms.delete(roomId);
@@ -76,7 +79,7 @@ export const WebSocketApp = new Hono().get(
           // Handle join specially
           if (msg && msg.type === 'join' && typeof msg.userId === 'string') {
             console.debug(`User ${msg.userId} joining room ${roomId}`);
-            joinRoom(roomId, msg.userId, ws);
+            joinRoom(roomId, msg.userId, msg.avatar, ws);
             const ack = JSON.stringify({
               type: 'joined',
               roomId: roomId,

@@ -32,7 +32,6 @@ export const Coin: React.FC<CoinProps> = ({ onFlip, onComplete, initial = 'heads
 
   // Initiates websocket message to start flip
   const initiateFlip = useCallback(() => {
-    // TODO: Handle who can flip the coin?
     if (isFlipping || startFlip || !seed) return;
     onFlip();
   }, [isFlipping, startFlip, seed, onFlip]);

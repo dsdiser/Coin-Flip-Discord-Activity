@@ -6,7 +6,6 @@ import {
   OutgoingMessage,
   MessageType,
   FlipStartMessage,
-  JoinMessage,
   PresenceMessage,
 } from '../state/websocketAtoms';
 import { seedAtom, startFlipAtom } from '../state/coinAtoms';
@@ -44,7 +43,11 @@ export function useWebsocket(roomId: string) {
       // We can then use the atoms directly or use atomWithListeners to use a callback
       switch (parsedMessage.type) {
         case MessageType.Join:
-          // legacy join acknowledgement - ignore or use if needed
+          // if we get a join message, we need to send a request to get the updated list of room members
+          // since cloudflare workers do not support sending to multiple clients in one request
+
+          // So we need to debounce this a bit to avoid spamming the server if multiple join messages come in quick succession
+          // then send the presence message to get the updated list
           break;
         case MessageType.Presence:
           const members = (parsedMessage as PresenceMessage).members as Array<RemoteMember>;
@@ -128,6 +131,9 @@ export function useWebsocket(roomId: string) {
     if (!user) {
       console.warn('No user, cannot send message');
       return;
+    }
+    if (message.type === MessageType.Join) {
+      message.avatar = user.avatar;
     }
     message.id = createMessageId();
     message.userId = user.id;

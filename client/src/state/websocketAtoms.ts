@@ -19,6 +19,7 @@ interface BaseMessage {
 // Specific message shapes
 export interface JoinMessage extends BaseMessage {
   type: MessageType.Join;
+  avatar?: string;
   roomMembers?: string[]; // Should be fulfilled by server
 }
 

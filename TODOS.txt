@@ -6,7 +6,8 @@ TODOS
 - Slow down the coin flip before animation finishes
 - Change background to the color of whatever side
 - Get assets for coin, bot, etc
-- Set up cloudflare worker fr fr
+- Set up cloudflare durable object, need to refactor. 
+  Make sure to use acceptWebsocket so it can hibernate as needed
 
 
 Done:
