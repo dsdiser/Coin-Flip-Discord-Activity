@@ -26,7 +26,7 @@ const ROTATION_MAX = 40; // Maximum number of rotations
 export const Coin: React.FC<CoinProps> = ({ onFlip, onComplete, initial = 'heads' }) => {
   const controls = useAnimation();
   const seed = useAtomValue(seedAtom);
-  const [current, setCurrent] = useState<CoinResult>(initial);
+  const [current, setCurrent] = useState(initial);
   const [isFlipping, setIsFlipping] = useState(false);
   const [startFlip, setStartFlip] = useAtom(startFlipAtom);
 

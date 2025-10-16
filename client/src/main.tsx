@@ -90,7 +90,7 @@ const CoinFlipApp: React.FC = () => {
           <div className={appStyles.coinArea}>
             <Coin onFlip={handleFlipSend} onComplete={onFlipResult} />
           </div>
-          {history.length > 0 && (
+          {/* {history.length > 0 && (
             <div className={appStyles.history}>
               <h3>History</h3>
               <ul>
@@ -101,7 +101,7 @@ const CoinFlipApp: React.FC = () => {
                 ))}
               </ul>
             </div>
-          )}
+          )} */}
         </div>
       </div>
     </>
