@@ -2,6 +2,8 @@
 import { Renderer, Program, Mesh, Triangle } from 'ogl';
 import { useEffect, useRef } from 'react';
 import styles from './BalatroBackground.module.css';
+import { flipAnimationDuration, useStartFlipListener } from '../../state/coinAtoms';
+import { animate } from 'motion/react';
 
 interface BalatroProps {
   spinRotation?: number;
@@ -140,6 +142,15 @@ export default function BalatroBackground({
   // Another option is to move the cleanup code into a separate function
   const containerRef = useRef<HTMLDivElement>(null);
 
+  // When the startFlip atom changes, dispatch the 'spinActivation' event on
+  // this component's container so the existing handler inside the effect
+  // that listens for 'spinActivation' will run the spin animation.
+  useStartFlipListener((_, __, newVal) => {
+    if (newVal && containerRef.current) {
+      containerRef.current.dispatchEvent(new Event('spinActivation'));
+    }
+  });
+
   useEffect(() => {
     if (!containerRef.current) return;
     const container = containerRef.current;
@@ -207,11 +218,26 @@ export default function BalatroBackground({
     }
     container.addEventListener('mousemove', handleMouseMove);
 
+    function handleSpinActivation() {
+      // use animate framer js function along with onupdate to update uMouse uniform
+      // use a spring so it goes back to 0 smoothly
+      animate(0, 10, {
+        duration: flipAnimationDuration,
+        type: 'spring',
+        bounce: 0.25,
+        onUpdate: (value: number) => {
+          program.uniforms.uMouse.value = [value, value];
+        },
+      });
+    }
+    container.addEventListener('spinActivation', handleSpinActivation);
+
     // Cleanup on unmount
     return () => {
       cancelAnimationFrame(animationFrameId);
       window.removeEventListener('resize', resize);
       container.removeEventListener('mousemove', handleMouseMove);
+      container.removeEventListener('spinActivation', handleSpinActivation);
       container.removeChild(gl.canvas);
       gl.getExtension('WEBGL_lose_context')?.loseContext();
     };

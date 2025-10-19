@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { motion, useAnimation } from 'motion/react';
-import { MersenneTwister19937, integer, real } from 'random-js';
+import { cubicBezier, motion, useAnimation } from 'motion/react';
+import { MersenneTwister19937, integer } from 'random-js';
 import styles from './Coin.module.css';
 import { useAtom, useAtomValue } from 'jotai';
-import { startFlipAtom, seedAtom } from '../../state/coinAtoms';
+import { startFlipAtom, seedAtom, flipAnimationDuration } from '../../state/coinAtoms';
 
 export type CoinResult = 'heads' | 'tails';
 
@@ -16,8 +16,8 @@ export interface CoinProps {
   initial?: CoinResult;
 }
 
-const ROTATION_MIN = 10; // Minimum number of rotations
-const ROTATION_MAX = 40; // Maximum number of rotations
+const ROTATION_MIN = 15; // Minimum number of rotations
+const ROTATION_MAX = 20; // Maximum number of rotations
 
 /**
  * Simple coin component that flips on click and returns a random result.
@@ -29,6 +29,7 @@ export const Coin: React.FC<CoinProps> = ({ onFlip, onComplete, initial = 'heads
   const [current, setCurrent] = useState(initial);
   const [isFlipping, setIsFlipping] = useState(false);
   const [startFlip, setStartFlip] = useAtom(startFlipAtom);
+  const frontLabel = useMemo(() => (current === 'heads' ? 'HEADS' : 'TAILS'), []);
 
   // Initiates websocket message to start flip
   const initiateFlip = useCallback(() => {
@@ -51,7 +52,10 @@ export const Coin: React.FC<CoinProps> = ({ onFlip, onComplete, initial = 'heads
     // Start animation
     await controls.start({
       rotateY: endRotation,
-      transition: { duration: 1.0 + real(0, 1)(mt) * 0.6, ease: [0.2, 0.8, 0.2, 1] },
+      transition: {
+        duration: flipAnimationDuration,
+        ease: cubicBezier(0.3, 0.8, 0.9, 1.03),
+      },
     });
 
     // Normalize the displayed side and reset rotation
@@ -71,40 +75,37 @@ export const Coin: React.FC<CoinProps> = ({ onFlip, onComplete, initial = 'heads
     }
   }, [startFlip, flip, setStartFlip]);
 
-  const frontLabel = useMemo(() => (current === 'heads' ? 'HEADS' : 'TAILS'), []);
-
   return (
-    <div className={styles.wrapper}>
-      <motion.div
-        className={styles.coin}
-        onClick={initiateFlip}
-        animate={controls}
-        initial={{ rotateY: initial === 'heads' ? 0 : 180 }}
-        style={{ rotateY: initial === 'heads' ? 0 : 180 }}
-        whileHover={{ scale: 1.1 }}
-        whileTap={{
-          scale: 1.25,
-          rotate: -5,
-          transition: { duration: 0.2, scale: { type: 'spring' } },
-        }}
-        role="button"
-        aria-pressed={isFlipping}
-        tabIndex={0}
-        onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            initiateFlip();
-          }
-        }}
-      >
-        <div className={styles.face + ' ' + styles.front}>
-          <div className={styles.label}>{frontLabel}</div>
-        </div>
-        <div className={styles.face + ' ' + styles.back}>
-          <div className={styles.label}>{frontLabel === 'HEADS' ? 'TAILS' : 'HEADS'}</div>
-        </div>
-      </motion.div>
-    </div>
+    <motion.div
+      className={styles.coin}
+      onClick={initiateFlip}
+      animate={controls}
+      initial={{ rotateY: initial === 'heads' ? 0 : 180 }}
+      style={{ rotateY: initial === 'heads' ? 0 : 180 }}
+      whileHover={{ scale: 1.1 }}
+      whileTap={{
+        scale: 1.25,
+        rotate: -15,
+        transition: { duration: 0.2, scale: { type: 'spring' } },
+      }}
+      role="button"
+      aria-pressed={isFlipping}
+      tabIndex={0}
+      onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          initiateFlip();
+        }
+      }}
+    >
+      <div className={styles.face + ' ' + styles.front}>
+        <div className={styles.label}>{frontLabel}</div>
+      </div>
+      <div className={styles.side} />
+      <div className={styles.face + ' ' + styles.back}>
+        <div className={styles.label}>{frontLabel === 'HEADS' ? 'TAILS' : 'HEADS'}</div>
+      </div>
+    </motion.div>
   );
 };
 

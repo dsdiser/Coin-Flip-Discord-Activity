@@ -1,5 +1,8 @@
 import React, { useCallback, useEffect } from 'react';
+import { motion, Transition, useAnimation } from 'motion/react';
 import styles from './Avatar.module.css';
+import { useAtomValue } from 'jotai';
+import { flipAnimationDuration, startFlipAtom } from '../../state/coinAtoms';
 
 interface AvatarProps {
   guildId: string; // Discord Guild ID to fetch guild-specific avatarS
@@ -8,11 +11,25 @@ interface AvatarProps {
   userId: string; // User's Discord or randomized ID
 }
 
+const transition: Transition = {
+  type: 'spring',
+  duration: flipAnimationDuration,
+  bounce: 0.95,
+};
+
 /**
  * Avatar component to display user's avatar image.
  */
 export const Avatar: React.FC<AvatarProps> = ({ guildId, accessToken, avatar, userId }) => {
   const [avatarUrl, setAvatarUrl] = React.useState<string | null>(null);
+  const startFlip = useAtomValue(startFlipAtom);
+  const controls = useAnimation();
+
+  useEffect(() => {
+    if (startFlip) {
+      controls.start({ translateY: [10, 0], transition: transition });
+    }
+  }, [startFlip, controls]);
 
   const setDefaultAvatar = useCallback(() => {
     let avatarSrc = '';
@@ -32,7 +49,6 @@ export const Avatar: React.FC<AvatarProps> = ({ guildId, accessToken, avatar, us
       return;
     }
 
-    let avatarSrc = '';
     fetch(`https://discord.com/api/users/@me/guilds/${guildId}/member`, {
       method: 'GET',
       headers: {
@@ -44,12 +60,13 @@ export const Avatar: React.FC<AvatarProps> = ({ guildId, accessToken, avatar, us
       })
       .then((guildsMembersRead) => {
         if (guildsMembersRead?.avatar) {
-          avatarSrc = `https://cdn.discordapp.com/guilds/${guildId}/users/${userId}/avatars/${guildsMembersRead.avatar}.png?size=256`;
+          const avatarSrc = `https://cdn.discordapp.com/guilds/${guildId}/users/${userId}/avatars/${guildsMembersRead.avatar}.png?size=256`;
+          setAvatarUrl(avatarSrc);
         } else {
           setDefaultAvatar();
         }
       })
-      .catch((error) => {
+      .catch((_error) => {
         // fallback to default avatars
         setDefaultAvatar();
       });
@@ -60,7 +77,7 @@ export const Avatar: React.FC<AvatarProps> = ({ guildId, accessToken, avatar, us
   }
 
   return (
-    <div className={styles.avatar}>
+    <motion.div className={styles.avatar} animate={controls}>
       <img
         src={avatarUrl}
         width="64"
@@ -69,6 +86,6 @@ export const Avatar: React.FC<AvatarProps> = ({ guildId, accessToken, avatar, us
         draggable={false}
         className={styles.img}
       />
-    </div>
+    </motion.div>
   );
 };

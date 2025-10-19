@@ -1,8 +1,3 @@
-.wrapper {
-  display: inline-block;
-  perspective: 1000px;
-}
-
 .coin {
   width: 20vw;
   height: 20vw;
@@ -22,11 +17,8 @@
   align-items: center;
   justify-content: center;
   backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  border-radius: 999px;
-  font-weight: 700;
+  border-radius: 100%;
   color: white;
-  font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
 }
 
 .front {
@@ -38,7 +30,16 @@
   transform: rotateY(180deg);
 }
 
+.side {
+  position: absolute;
+  inset: 0;
+  width: 10px;
+  border-radius: 100%;
+  backface-visibility: hidden;
+  background: #ffffff;
+  transform: rotateY(90deg);
+}
+
 .label {
   font-size: 20px;
-  letter-spacing: 1px;
 }
