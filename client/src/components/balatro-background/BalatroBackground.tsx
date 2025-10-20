@@ -5,13 +5,14 @@ import styles from './BalatroBackground.module.css';
 import { flipAnimationDuration, useStartFlipListener } from '../../state/coinAtoms';
 import { animate } from 'motion/react';
 
+type ColorPair = [string, string];
 interface BalatroProps {
   spinRotation?: number;
   spinSpeed?: number;
   offset?: [number, number];
-  color1?: string;
-  color2?: string;
-  color3?: string;
+  color1?: ColorPair;
+  color2?: ColorPair;
+  color3?: ColorPair;
   contrast?: number;
   lighting?: number;
   spinAmount?: number;
@@ -38,6 +39,22 @@ function hexToVec4(hex: string): [number, number, number, number] {
     a = parseInt(hexStr.slice(6, 8), 16) / 255;
   }
   return [r, g, b, a];
+}
+
+function vec4ToHex(vec: [number, number, number, number]): string {
+  const r = Math.round(vec[0] * 255)
+    .toString(16)
+    .padStart(2, '0');
+  const g = Math.round(vec[1] * 255)
+    .toString(16)
+    .padStart(2, '0');
+  const b = Math.round(vec[2] * 255)
+    .toString(16)
+    .padStart(2, '0');
+  const a = Math.round(vec[3] * 255)
+    .toString(16)
+    .padStart(2, '0');
+  return `#${r}${g}${b}${a}`;
 }
 
 const vertexShader = `
@@ -122,13 +139,15 @@ void main() {
 }
 `;
 
+const baseMouseInfluence: Array<number> = [0.5, 0.5];
+
 export default function BalatroBackground({
   spinRotation = -2.0,
   spinSpeed = 7.0,
   offset = [0.0, 0.0],
-  color1 = '#DE443B',
-  color2 = '#006BB4',
-  color3 = '#162325',
+  color1 = ['#DE443B', '#DE443B'],
+  color2 = ['#006BB4', '#006BB4'],
+  color3 = ['#162325', '#162325'],
   contrast = 3.5,
   lighting = 0.4,
   spinAmount = 0.25,
@@ -185,16 +204,16 @@ export default function BalatroBackground({
         uSpinRotation: { value: spinRotation },
         uSpinSpeed: { value: spinSpeed },
         uOffset: { value: offset },
-        uColor1: { value: hexToVec4(color1) },
-        uColor2: { value: hexToVec4(color2) },
-        uColor3: { value: hexToVec4(color3) },
+        uColor1: { value: hexToVec4(color1[0]) },
+        uColor2: { value: hexToVec4(color2[0]) },
+        uColor3: { value: hexToVec4(color3[0]) },
         uContrast: { value: contrast },
         uLighting: { value: lighting },
         uSpinAmount: { value: spinAmount },
         uPixelFilter: { value: pixelFilter },
         uSpinEase: { value: spinEase },
         uIsRotate: { value: isRotate },
-        uMouse: { value: [0.5, 0.5] },
+        uMouse: { value: baseMouseInfluence },
       },
     });
 
@@ -218,17 +237,30 @@ export default function BalatroBackground({
     }
     container.addEventListener('mousemove', handleMouseMove);
 
-    function handleSpinActivation() {
-      // use animate framer js function along with onupdate to update uMouse uniform
-      // use a spring so it goes back to 0 smoothly
-      animate(0, 10, {
-        duration: flipAnimationDuration,
-        type: 'spring',
-        bounce: 0.25,
-        onUpdate: (value: number) => {
-          program.uniforms.uMouse.value = [value, value];
+    function animateColor(color1: string, color2: string, colorNum: string) {
+      animate(color1, color2, {
+        type: 'tween',
+
+        duration: flipAnimationDuration / 2,
+        onUpdate: (value: string) => {
+          program.uniforms['uColor' + colorNum].value = hexToVec4(value);
         },
       });
+    }
+
+    function handleSpinActivation() {
+      // animate the spin
+      animate(program.uniforms.uMouse.value[0], program.uniforms.uMouse.value[0] + 15, {
+        type: 'tween',
+        duration: flipAnimationDuration,
+        onUpdate: (value: number) => {
+          program.uniforms.uMouse.value = [value, program.uniforms.uMouse.value[1]];
+        },
+      });
+      // animate the colors
+      animateColor(vec4ToHex(program.uniforms.uColor1.value), color1[1], '1');
+      animateColor(vec4ToHex(program.uniforms.uColor2.value), color2[1], '2');
+      animateColor(vec4ToHex(program.uniforms.uColor3.value), color3[1], '3');
     }
     container.addEventListener('spinActivation', handleSpinActivation);
 

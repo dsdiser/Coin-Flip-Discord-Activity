@@ -23,9 +23,9 @@ const App: React.FC = () => {
   return (
     <>
       <BalatroBackground
-        color1="#476952"
-        color2="#404040"
-        color3="#142021"
+        color1={['#476952', '#314637ff']}
+        color2={['#404040', '#ff0000ff']}
+        color3={['#142021', '#ffffffff']}
         pixelFilter={500}
         spinRotation={spinAmount}
       />
