@@ -3,26 +3,23 @@ import ReactDOM from 'react-dom/client';
 import './styles/global.css';
 import appStyles from './components/App.module.css';
 import { DiscordContextProvider, useDiscordSdk } from './hooks/useDiscordSdk';
-import { Provider as JotaiProvider, useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { Provider as JotaiProvider, useAtomValue, useSetAtom } from 'jotai';
 import useWebsocket from './hooks/useWebsocket';
 import DebugOverlay from './components/debug-overlay/DebugOverlay';
 import Coin, { CoinResult } from './components/coin/Coin';
 import BalatroBackground from './components/balatro-background/BalatroBackground';
-import { spinAmountAtom } from './state/backgroundAtoms';
 import { setRandomSeedAtom, seedAtom } from './state/coinAtoms';
 import { userAtom, roomMembersAtom } from './state/userAtoms';
 import { AvatarOverlay } from './components/avatar-overlay/AvatarOverlay';
 import { MessageType } from './state/websocketAtoms';
 
 const App: React.FC = () => {
-  const [spinAmount, _setSpinAmount] = useAtom(spinAmountAtom);
-
   const inIframe = window.self !== window.top;
   const shouldAuth = inIframe; // Only authenticate if in an iframe (i.e. in Discord)
 
   return (
     <>
-      <BalatroBackground pixelFilter={500} spinRotation={spinAmount} />
+      <BalatroBackground />
       <DiscordContextProvider
         authenticateWithDiscord={shouldAuth}
         scope={['identify', 'guilds', 'guilds.members.read']}

@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react';
 import styles from './BalatroBackground.module.css';
 import { flipAnimationDuration, useStartFlipListener } from '../../state/coinAtoms';
 import { animate } from 'motion/react';
+import { hexToVec4, rgbVecToOklab, oklabToRgbVec } from './colorUtil';
 
 interface BalatroProps {
   spinRotation?: number;
@@ -16,133 +17,6 @@ interface BalatroProps {
   spinEase?: number;
   isRotate?: boolean;
   mouseInteraction?: boolean;
-}
-
-function hexToVec4(hex: string): [number, number, number, number] {
-  let hexStr = hex.replace('#', '');
-  let r = 0,
-    g = 0,
-    b = 0,
-    a = 1;
-  if (hexStr.length === 6) {
-    r = parseInt(hexStr.slice(0, 2), 16) / 255;
-    g = parseInt(hexStr.slice(2, 4), 16) / 255;
-    b = parseInt(hexStr.slice(4, 6), 16) / 255;
-  } else if (hexStr.length === 8) {
-    r = parseInt(hexStr.slice(0, 2), 16) / 255;
-    g = parseInt(hexStr.slice(2, 4), 16) / 255;
-    b = parseInt(hexStr.slice(4, 6), 16) / 255;
-    a = parseInt(hexStr.slice(6, 8), 16) / 255;
-  }
-  return [r, g, b, a];
-}
-
-function vec4ToHex(vec: [number, number, number, number]): string {
-  const r = Math.round(vec[0] * 255)
-    .toString(16)
-    .padStart(2, '0');
-  const g = Math.round(vec[1] * 255)
-    .toString(16)
-    .padStart(2, '0');
-  const b = Math.round(vec[2] * 255)
-    .toString(16)
-    .padStart(2, '0');
-  const a = Math.round(vec[3] * 255)
-    .toString(16)
-    .padStart(2, '0');
-  return `#${r}${g}${b}${a}`;
-}
-
-/**
- * Motion interpolates based on css colors, so we take these and convert to vec4, used in shader
- * Supports hex (#rrggbb or #rrggbbaa), rgb(...), rgba(...), and plain 6 or 8 char hex without '#'
- */
-function cssColorToVec4(color: string): [number, number, number, number] {
-  const str = color.trim();
-  // rgb(...) or rgba(...)
-  const rgbRegex = /rgba?\(([^)]+)\)/i;
-  const rgbMatch = str.match(rgbRegex);
-  if (rgbMatch) {
-    const parts = rgbMatch[1].split(',').map((p) => p.trim());
-    let r = 0,
-      g = 0,
-      b = 0,
-      a = 1;
-
-    const parseComponent = (c: string) => {
-      if (c.endsWith('%')) {
-        // percent -> 0-255
-        return (parseFloat(c) / 100) * 255;
-      }
-      return parseFloat(c);
-    };
-
-    if (parts.length >= 3) {
-      r = parseComponent(parts[0]) / 255;
-      g = parseComponent(parts[1]) / 255;
-      b = parseComponent(parts[2]) / 255;
-    }
-    if (parts.length === 4) {
-      const alpha = parts[3];
-      a = alpha.endsWith('%') ? parseFloat(alpha) / 100 : parseFloat(alpha);
-    }
-
-    return [r, g, b, a];
-  }
-
-  // plain 6 or 8 char hex without leading '#'
-  const bareHex = str.replace('#', '');
-  if (/^[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$/.test(bareHex)) {
-    return hexToVec4('#' + bareHex);
-  }
-
-  // fallback to black if we can't parse (should be rare)
-  return [0, 0, 0, 1];
-}
-
-// --- OKLab helpers (lightweight conversions) ---
-// Source reference: https://bottosson.github.io/posts/oklab/
-function srgbToLinear(c: number) {
-  return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
-}
-function linearToSrgb(c: number) {
-  return c <= 0.0031308 ? c * 12.92 : 1.055 * Math.pow(c, 1 / 2.4) - 0.055;
-}
-
-function rgbVecToOklab([r, g, b]: [number, number, number]) {
-  // convert sRGB [0,1] to linear
-  const lr = srgbToLinear(r);
-  const lg = srgbToLinear(g);
-  const lb = srgbToLinear(b);
-
-  const l = 0.4122214708 * lr + 0.5363325363 * lg + 0.0514459929 * lb;
-  const m = 0.2119034982 * lr + 0.6806995451 * lg + 0.1073969566 * lb;
-  const s = 0.0883024619 * lr + 0.2817188376 * lg + 0.6299787005 * lb;
-
-  const l_ = Math.cbrt(l);
-  const m_ = Math.cbrt(m);
-  const s_ = Math.cbrt(s);
-
-  const L = 0.2104542553 * l_ + 0.793617785 * m_ - 0.0040720468 * s_;
-  const a = 1.9779984951 * l_ - 2.428592205 * m_ + 0.4505937099 * s_;
-  const b_ = 0.0259040371 * l_ + 0.7827717662 * m_ - 0.808675766 * s_;
-  return [L, a, b_];
-}
-
-function oklabToRgbVec([L, a, b]: [number, number, number]) {
-  const l_ = L + 0.3963377774 * a + 0.2158037573 * b;
-  const m_ = L - 0.1055613458 * a - 0.0638541728 * b;
-  const s_ = L - 0.0894841775 * a - 1.291485548 * b;
-
-  const l = l_ * l_ * l_;
-  const m = m_ * m_ * m_;
-  const s = s_ * s_ * s_;
-
-  const lr = +4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s;
-  const lg = -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s;
-  const lb = -0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s;
-
-  return [linearToSrgb(lr), linearToSrgb(lg), linearToSrgb(lb)];
 }
 
 const vertexShader = `
@@ -231,10 +105,10 @@ const baseMouseInfluence: Array<number> = [0.5, 0.5];
 const palettes: Array<[string, string, string]> = [
   ['#476952', '#404040', '#142021'],
   ['#DE443B', '#006BB4', '#162325'],
+  ['#A9B3DD', '#546E82', '#263D3E'],
   ['#FF6B6B', '#4ECDC4', '#1A535C'],
   ['#F2D388', '#C98474', '#874C62'],
   ['#FFDCD8', '#713D97', '#191D5E'],
-  ['#A9B3DD', '#546E82', '#263D3E'],
 ];
 
 export default function BalatroBackground({
@@ -249,20 +123,17 @@ export default function BalatroBackground({
   isRotate = false,
   mouseInteraction = true,
 }: BalatroProps) {
-  // TODO: Find a way to modify props inside this component without fully rerendering the component.
-  // Possible solution is to add event listeners for different props we want to change.
-  // Another option is to move the cleanup code into a separate function
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // When the startFlip atom changes, dispatch the 'spinActivation' event on
-  // this component's container so the existing handler inside the effect
-  // that listens for 'spinActivation' will run the spin animation.
+  // When the startFlip atom changes, dispatch the 'spinActivation' event for the existing handler
   useStartFlipListener((_, __, newVal) => {
     if (newVal && containerRef.current) {
       containerRef.current.dispatchEvent(new Event('spinActivation'));
     }
   });
 
+  // If we want to change any of the shader props dynamically, we can do so here
+  // Changing props will automatically trigger a rerender of this component, which resets the whole shader.
   useEffect(() => {
     if (!containerRef.current) return;
     const container = containerRef.current;
@@ -332,11 +203,15 @@ export default function BalatroBackground({
     }
     container.addEventListener('mousemove', handleMouseMove);
 
-    function animateColor(color1: string, color2: string, colorNum: string) {
-      // the conversions here are kind of ai slop but they work. Not super sure that converting to okLab is req here.
-      // Convert endpoints to vec4
-      const v1 = cssColorToVec4(color1);
-      const v2 = cssColorToVec4(color2);
+    function animateColor(
+      fromVec: [number, number, number, number],
+      toHex: string,
+      colorNum: string
+    ) {
+      // Convert endpoints to vec4. `fromVec` is the current uniform value (already a vec4),
+      // `toHex` is a palette hex string which we convert to vec4 for the animation target.
+      const v1 = fromVec;
+      const v2 = hexToVec4(toHex);
       // Convert RGB -> OKLab
       const lab1 = rgbVecToOklab([v1[0], v1[1], v1[2]]);
       const lab2 = rgbVecToOklab([v2[0], v2[1], v2[2]]);
@@ -368,12 +243,24 @@ export default function BalatroBackground({
           program.uniforms.uMouse.value = [value, program.uniforms.uMouse.value[1]];
         },
       });
-      // cycle to next palette and animate all three colors
+      // cycle to next palette and animate all three colors via OKLab
       const nextIndex = (paletteIndex.current + 1) % palettes.length;
       const nextPalette = palettes[nextIndex];
-      animateColor(vec4ToHex(program.uniforms.uColor1.value), nextPalette[0], '1');
-      animateColor(vec4ToHex(program.uniforms.uColor2.value), nextPalette[1], '2');
-      animateColor(vec4ToHex(program.uniforms.uColor3.value), nextPalette[2], '3');
+      animateColor(
+        program.uniforms.uColor1.value as [number, number, number, number],
+        nextPalette[0],
+        '1'
+      );
+      animateColor(
+        program.uniforms.uColor2.value as [number, number, number, number],
+        nextPalette[1],
+        '2'
+      );
+      animateColor(
+        program.uniforms.uColor3.value as [number, number, number, number],
+        nextPalette[2],
+        '3'
+      );
       paletteIndex.current = nextIndex;
     }
     container.addEventListener('spinActivation', handleSpinActivation);
