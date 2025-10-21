@@ -31,7 +31,8 @@ const App: React.FC = () => {
 };
 
 const CoinFlipApp: React.FC = () => {
-  const { status, authenticated, accessToken, auth, error, instanceId } = useDiscordSdk();
+  const { discordSdk, status, authenticated, accessToken, auth, error, instanceId } =
+    useDiscordSdk();
   const [history, setHistory] = useState<Array<{ result: CoinResult; timestamp: number }>>([]);
   const user = useAtomValue(userAtom);
   const roomMembers = useAtomValue(roomMembersAtom);
@@ -64,7 +65,7 @@ const CoinFlipApp: React.FC = () => {
     <>
       <AvatarOverlay
         users={roomMembers.map((m) => ({ id: m.id, avatar: m.avatar }))}
-        guildId={''}
+        guildId={discordSdk?.guildId || undefined}
         accessToken={accessToken}
       />
       <DebugOverlay

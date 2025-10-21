@@ -9,7 +9,7 @@ type UserLike = {
 
 interface AvatarOverlayProps {
   users: UserLike[];
-  guildId: string;
+  guildId?: string;
   accessToken?: string | null;
   maxVisible?: number; // Optional max number of avatars to show
 }

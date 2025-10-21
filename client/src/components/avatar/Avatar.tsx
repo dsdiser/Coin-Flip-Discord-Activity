@@ -5,7 +5,7 @@ import { useAtomValue } from 'jotai';
 import { flipAnimationDuration, startFlipAtom } from '../../state/coinAtoms';
 
 interface AvatarProps {
-  guildId: string; // Discord Guild ID to fetch guild-specific avatarS
+  guildId?: string; // Discord Guild ID to fetch guild-specific avatarS
   accessToken?: string | null; // Discord OAuth2 access token
   avatar?: string | null; // User's avatar hash from Discord
   userId: string; // User's Discord or randomized ID

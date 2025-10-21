@@ -18,7 +18,7 @@ const generateInstanceId = () => Math.random().toString(36).substring(2, 6);
 const generateUserId = () => (Math.floor(Math.random() * 9000) + 1000).toString();
 
 interface DiscordContextValue {
-  discordSdk?: any;
+  discordSdk?: DiscordSDK;
   accessToken?: string | null;
   authenticated: boolean;
   auth?: Auth;
