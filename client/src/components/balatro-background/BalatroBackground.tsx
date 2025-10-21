@@ -229,11 +229,12 @@ void main() {
 
 const baseMouseInfluence: Array<number> = [0.5, 0.5];
 const palettes: Array<[string, string, string]> = [
-  ['#476952', '#404040', '#142021'], // original dark
-  ['#DE443B', '#006BB4', '#162325'], // original warm/cool/dark
-  ['#FF6B6B', '#4ECDC4', '#1A535C'], // coral / mint / deep
-  ['#F2D388', '#C98474', '#874C62'], // warm muted
-  ['#9B5DE5', '#1e4552ff', '#015c50ff'], // vibrant neons
+  ['#476952', '#404040', '#142021'],
+  ['#DE443B', '#006BB4', '#162325'],
+  ['#FF6B6B', '#4ECDC4', '#1A535C'],
+  ['#F2D388', '#C98474', '#874C62'],
+  ['#FFDCD8', '#713D97', '#191D5E'],
+  ['#A9B3DD', '#546E82', '#263D3E'],
 ];
 
 export default function BalatroBackground({
