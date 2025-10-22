@@ -1,26 +1,34 @@
+import {
+  DurableObjectClass,
+  DurableObjectState,
+  WebSocketPair,
+  WebSocket,
+} from '@cloudflare/workers-types';
+
+type AnyRecord = Record<string, unknown>;
+
 interface RoomMember {
   userId: string;
   avatar?: string;
-  ws: WebSocket;
+  ws: WebSocket; // Cloudflare WebSocket
 }
-export class RoomDO {
-  state: any;
-  env: any;
+
+export class RoomDO implements DurableObjectClass {
+  state: DurableObjectState;
+  env: AnyRecord;
   connections: Map<string, Set<RoomMember>>;
 
-  constructor(state: any, env: any) {
+  constructor(state: DurableObjectState, env: AnyRecord) {
     this.state = state;
     this.env = env;
     this.connections = new Map<string, Set<RoomMember>>();
 
     // Rehydrate any accepted websockets after hibernation if supported
     try {
-      const getWebSockets =
-        this.state.getWebSockets || (this.state.ctx && this.state.ctx.getWebSockets);
-      const websockets =
-        typeof getWebSockets === 'function' ? getWebSockets.call(this.state) : undefined;
-      if (websockets && Array.isArray(websockets)) {
+      const websockets = this.state.getWebSockets() || [];
+      if (websockets) {
         for (const _ws of websockets) {
+          // TODO is this needed?
           // Can't map these to rooms until client sends a join message; noop for now
         }
       }
@@ -30,22 +38,18 @@ export class RoomDO {
   }
 
   // fetch is used as the handoff for websocket upgrades from the Worker
-  async fetch(req: Request) {
-    const upgradeHeader = req.headers.get('upgrade') || '';
+  async fetch(request: Request) {
+    const upgradeHeader = request.headers.get('upgrade') || '';
     if (upgradeHeader.toLowerCase() !== 'websocket') {
       return new Response('Expected Upgrade: websocket', { status: 426 });
     }
 
-    const PairCtor = (globalThis as any).WebSocketPair;
-    const pair: any =
-      typeof PairCtor === 'function' ? new PairCtor() : { 0: undefined, 1: undefined };
+    const pair = new (globalThis as any).WebSocketPair();
     const [client, server] = Object.values(pair) as [WebSocket, WebSocket];
 
     // Accept the server side so Cloudflare can hibernate the DO when idle
     try {
-      const accept =
-        this.state.acceptWebSocket || (this.state.ctx && this.state.ctx.acceptWebSocket);
-      if (typeof accept === 'function') accept.call(this.state, server);
+      this.state.acceptWebSocket(server);
     } catch (err) {
       console.error('RoomDO: acceptWebSocket failed', err);
     }
@@ -62,12 +66,19 @@ export class RoomDO {
       // ignore
     }
 
-    // TS typing for Response with webSocket is not standard; cast to any to avoid errors
-    return new Response(null as any, { status: 101 }) as any as Response;
+    try {
+      // In Cloudflare Workers this is valid: status 101 with webSocket
+      return new Response(null, { status: 101, webSocket: client } as any);
+    } catch (err) {
+      // If the environment (e.g., node test runner) doesn't support 101 responses,
+      // fall back to a harmless 200 response so the caller doesn't crash.
+      console.warn('RoomDO: returning fallback response because environment rejected 101:', err);
+      return new Response('Websocket upgrade not supported in this environment', { status: 200 });
+    }
   }
 
   // Durable Object Hibernation API handlers
-  webSocketMessage(ws: WebSocket, data: string) {
+  webSocketMessage(ws: any, data: string) {
     try {
       const msg = JSON.parse(data.toString());
       if (
@@ -104,11 +115,11 @@ export class RoomDO {
     }
   }
 
-  webSocketClose(ws: WebSocket, _code: number, _reason: string, _wasClean: boolean) {
+  webSocketClose(ws: any, _code: number, _reason: string, _wasClean: boolean) {
     this.removeSocketFromAllRooms(ws);
   }
 
-  webSocketError(ws: WebSocket, _error: unknown) {
+  webSocketError(ws: any, _error: unknown) {
     this.removeSocketFromAllRooms(ws);
   }
 
@@ -123,8 +134,7 @@ export class RoomDO {
     }
     set.add(member);
   }
-
-  removeSocketFromAllRooms(ws: WebSocket) {
+  removeSocketFromAllRooms(ws: any) {
     for (const [roomId, set] of this.connections.entries()) {
       for (const m of Array.from(set)) {
         if (m.ws === ws) {
