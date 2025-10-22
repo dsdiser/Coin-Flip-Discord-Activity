@@ -102,13 +102,16 @@ void main() {
 `;
 
 const baseMouseInfluence: Array<number> = [0.5, 0.5];
+// usually light to dark
 const palettes: Array<[string, string, string]> = [
   ['#476952', '#404040', '#142021'],
   ['#DE443B', '#006BB4', '#162325'],
   ['#A9B3DD', '#546E82', '#263D3E'],
   ['#FF6B6B', '#4ECDC4', '#1A535C'],
+  ['#FFABF9', '#6937A1', '#1F1C6A'],
   ['#F2D388', '#C98474', '#874C62'],
   ['#FFDCD8', '#713D97', '#191D5E'],
+  ['#CDFFFF', '#76AA5A', '#5D5D23'],
 ];
 
 export default function BalatroBackground({

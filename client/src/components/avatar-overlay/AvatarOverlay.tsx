@@ -14,11 +14,7 @@ interface AvatarOverlayProps {
   maxVisible?: number; // Optional max number of avatars to show
 }
 
-/**
- * AvatarOverlay
- * Renders a fixed footer across the bottom of the screen with evenly spaced
- * avatars.
- */
+//  Renders a fixed footer across the bottom of the screen with evenly spaced avatars.
 export const AvatarOverlay: React.FC<AvatarOverlayProps> = ({
   users,
   guildId,

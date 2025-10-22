@@ -43,7 +43,7 @@ export const Coin: React.FC<CoinProps> = ({ onFlip, onComplete, initial = 'heads
     setIsFlipping(true);
     const mt = MersenneTwister19937.seed(seed);
     const result: CoinResult = integer(0, 1)(mt) ? 'heads' : 'tails';
-    let rotations = integer(ROTATION_MIN, ROTATION_MAX)(mt); // 10..30
+    let rotations = integer(ROTATION_MIN, ROTATION_MAX)(mt);
     if (rotations % 2 === 0 && result !== current) {
       rotations += 1;
     }

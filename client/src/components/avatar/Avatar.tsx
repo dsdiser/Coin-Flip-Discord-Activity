@@ -26,6 +26,7 @@ export const Avatar: React.FC<AvatarProps> = ({ guildId, accessToken, avatar, us
   const controls = useAnimation();
 
   useEffect(() => {
+    // TODO: only animate for the flipper?
     if (startFlip) {
       controls.start({ translateY: [10, 0], transition: transition });
     }
