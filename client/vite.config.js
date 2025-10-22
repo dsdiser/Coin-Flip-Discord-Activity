@@ -11,7 +11,7 @@ export default defineConfig({
     cloudflare(),
     viteDevServer({
       cloudflare: false,
-      watch: ['../server', './wrangler.jsonc'],
+      watch: ['../worker', './wrangler.jsonc'],
     }),
   ],
   server: {

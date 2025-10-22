@@ -6,5 +6,20 @@
     "run_worker_first": ["/api/*", "/ws", "/ping"]
   },
   "main": "../worker/main.ts",
-  "compatibility_flags": ["nodejs_compat"]
+  "compatibility_flags": ["nodejs_compat"],
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "ROOM_DO",
+        "class_name": "RoomDO"
+      }
+    ]
+  },
+  "$schema": "./node_modules/wrangler/website-schema.json",
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_classes": ["RoomDO"]
+    }
+  ]
 }

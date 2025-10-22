@@ -1,5 +1,5 @@
 import { describe, test, expect, beforeEach } from 'vitest';
-import { rooms, joinRoom, broadcastToRoom, leaveRoom } from '../websocket-server';
+import { rooms, joinRoom, broadcastToRoom, leaveRoom } from '../room-utils';
 
 type MockWS = {
   readyState: number;
@@ -32,8 +32,8 @@ describe('websocket helpers', () => {
     const ws1 = createMockWS({ type: 'join', id: 'user1', roomId: 'roomA' }) as any;
     const ws2 = createMockWS({ type: 'join', id: 'user2', roomId: 'roomA' }) as any;
 
-    joinRoom('roomA', 'user1', ws1);
-    joinRoom('roomA', 'user2', ws2);
+    joinRoom('roomA', 'user1', undefined, ws1);
+    joinRoom('roomA', 'user2', undefined, ws2);
 
     expect(rooms.has('roomA')).toBe(true);
     const set = rooms.get('roomA')!;
@@ -52,7 +52,7 @@ describe('websocket helpers', () => {
 
     expect(rooms.has('roomB')).toBe(true);
 
-    leaveRoom('addrX');
+    leaveRoom(ws);
 
     expect(rooms.has('roomB')).toBe(false);
   });

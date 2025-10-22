@@ -1,40 +1,42 @@
 import { WSContext } from 'hono/ws';
 
-interface RoomMember {
+export interface RoomMember {
   userId: string;
   avatar?: string;
-  ws: WSContext;
+  ws: any; // ws can be Hono WSContext or standard WebSocket depending on runtime
 }
-// Map roomId -> Set of ws clients
-export const rooms = new Map<string, Set<RoomMember>>();
 
-export function joinRoom(
+// Factory to create a new rooms map (roomId -> Set<RoomMember>)
+export function createRoomsMap() {
+  return new Map<string, Set<RoomMember>>();
+}
+
+// Pure helper: join a roomsMap
+export function joinRoomToMap(
+  roomsMap: Map<string, Set<RoomMember>>,
   roomId: string,
   userId: string,
   avatar: string | undefined,
-  ws: WSContext
+  ws: any
 ) {
-  if (!rooms.has(roomId)) {
+  if (!roomsMap.has(roomId)) {
     console.debug(`Creating new room ${roomId}`);
-    rooms.set(roomId, new Set<RoomMember>());
+    roomsMap.set(roomId, new Set<RoomMember>());
   }
-  rooms.get(roomId)!.add({ userId, ws, avatar });
+  roomsMap.get(roomId)!.add({ userId, ws, avatar });
   // Broadcast presence to everyone in the room
   const presence = JSON.stringify({
     type: 'presence',
     roomId,
-    members: Array.from(rooms.get(roomId)!).map((m) => ({
-      id: m.userId,
-      avatar: m.avatar,
-    })),
+    members: Array.from(roomsMap.get(roomId)!).map((m) => ({ id: m.userId, avatar: m.avatar })),
   });
-  broadcastToRoom(roomId, presence);
-  console.debug('Rooms:', rooms);
+  broadcastToRoomInMap(roomsMap, roomId, presence);
+  console.debug('Rooms:', roomsMap);
 }
 
-export function leaveRoom(ws: WSContext) {
-  // Find the room by ws
-  for (const [roomId, members] of rooms.entries()) {
+// Pure helper: leave by ws instance
+export function leaveRoomFromMap(roomsMap: Map<string, Set<RoomMember>>, ws: any) {
+  for (const [roomId, members] of roomsMap.entries()) {
     for (const member of members) {
       if (member.ws === ws) {
         members.delete(member);
@@ -44,24 +46,46 @@ export function leaveRoom(ws: WSContext) {
           roomId,
           members: Array.from(members).map((m) => ({ id: m.userId, avatar: m.avatar })),
         });
-        broadcastToRoom(roomId, presenceMsg);
-        if (members.size === 0) rooms.delete(roomId);
+        broadcastToRoomInMap(roomsMap, roomId, presenceMsg);
+        if (members.size === 0) roomsMap.delete(roomId);
         return;
       }
     }
   }
 }
 
-export function broadcastToRoom(roomId: string, data: any) {
-  const set = rooms.get(roomId);
+// Pure helper: broadcast into a roomsMap
+export function broadcastToRoomInMap(
+  roomsMap: Map<string, Set<RoomMember>>,
+  roomId: string,
+  data: any
+) {
+  const set = roomsMap.get(roomId);
   if (!set) return;
-  for (const roomMember of set) {
-    if (roomMember.ws.readyState === 1) {
-      roomMember.ws.send(data);
-    } else if ([2, 3].includes(roomMember.ws.readyState)) {
-      // Closed or closing, remove from set
+  for (const roomMember of Array.from(set)) {
+    try {
+      if (roomMember.ws && roomMember.ws.readyState === 1) {
+        roomMember.ws.send(data);
+      } else if (roomMember.ws && [2, 3].includes(roomMember.ws.readyState)) {
+        // Closed or closing, remove from set
+        set.delete(roomMember);
+      }
+    } catch (e) {
+      // Remove broken socket
       set.delete(roomMember);
-      if (set.size === 0) rooms.delete(roomId);
     }
   }
+  if (set.size === 0) roomsMap.delete(roomId);
+}
+
+// Backwards-compatible in-process map and wrappers (deprecated)
+export const rooms = createRoomsMap();
+export function joinRoom(roomId: string, userId: string, avatar: string | undefined, ws: any) {
+  return joinRoomToMap(rooms, roomId, userId, avatar, ws);
+}
+export function leaveRoom(ws: any) {
+  return leaveRoomFromMap(rooms, ws);
+}
+export function broadcastToRoom(roomId: string, data: any) {
+  return broadcastToRoomInMap(rooms, roomId, data);
 }
