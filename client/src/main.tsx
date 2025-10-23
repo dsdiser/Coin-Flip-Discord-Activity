@@ -38,7 +38,7 @@ const CoinFlipApp: React.FC = () => {
   const roomMembers = useAtomValue(roomMembersAtom);
   const seed = useAtomValue(seedAtom);
   const setRandomSeed = useSetAtom(setRandomSeedAtom);
-  const { send, connectionStatus } = useWebsocket(instanceId);
+  const { send, connectionStatus } = useWebsocket('default');
 
   function onFlipResult(result: CoinResult) {
     setRandomSeed();

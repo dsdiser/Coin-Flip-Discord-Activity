@@ -1,9 +1,4 @@
-import {
-  DurableObjectClass,
-  DurableObjectState,
-  WebSocketPair,
-  WebSocket,
-} from '@cloudflare/workers-types';
+import { DurableObjectClass, DurableObjectState, WebSocket } from '@cloudflare/workers-types';
 
 type AnyRecord = Record<string, unknown>;
 
@@ -130,12 +125,19 @@ export class RoomDO implements DurableObjectClass {
   }
   removeSocketFromAllRooms(ws: any) {
     for (const [roomId, set] of this.connections.entries()) {
-      for (const m of Array.from(set)) {
-        if (m.ws === ws) {
-          set.delete(m);
-        }
-      }
+      // if m is in set with ws, delete it then broadcast a presence update
+      const member = Array.from(set).find((m) => m.ws === ws);
+      if (!member) continue;
+      set.delete(member);
       if (set.size === 0) this.connections.delete(roomId);
+      this.broadcast(
+        roomId,
+        JSON.stringify({
+          type: 'presence',
+          roomId: roomId,
+          members: this.listMembers(roomId),
+        })
+      );
     }
   }
 
@@ -145,7 +147,7 @@ export class RoomDO implements DurableObjectClass {
     return Array.from(set).map((m) => ({ id: m.userId, avatar: m.avatar }));
   }
 
-  async broadcast(roomId: string, message: string) {
+  broadcast(roomId: string, message: string) {
     const set = this.connections.get(roomId);
     if (!set) return;
     for (const member of Array.from(set)) {
