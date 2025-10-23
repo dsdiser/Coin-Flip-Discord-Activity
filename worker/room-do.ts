@@ -27,9 +27,10 @@ export class RoomDO implements DurableObjectClass {
     try {
       const websockets = this.state.getWebSockets() || [];
       if (websockets) {
-        for (const _ws of websockets) {
-          // TODO is this needed?
-          // Can't map these to rooms until client sends a join message; noop for now
+        for (const ws of websockets) {
+          // Recreates rooms after hibernation based on serialized attachment
+          let meta = ws.deserializeAttachment();
+          this.addMemberToRoom(meta.roomId, { userId: meta.userId, avatar: meta.avatar, ws });
         }
       }
     } catch (e) {
@@ -133,6 +134,7 @@ export class RoomDO implements DurableObjectClass {
       }
     }
     set.add(member);
+    member.ws.serializeAttachment({ roomId, userId: member.userId, avatar: member.avatar });
   }
   removeSocketFromAllRooms(ws: any) {
     for (const [roomId, set] of this.connections.entries()) {

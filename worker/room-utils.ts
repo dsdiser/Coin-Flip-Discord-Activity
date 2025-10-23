@@ -1,9 +1,10 @@
+import { WebSocket } from '@cloudflare/workers-types';
 import { WSContext } from 'hono/ws';
 
 export interface RoomMember {
   userId: string;
   avatar?: string;
-  ws: any; // ws can be Hono WSContext or standard WebSocket depending on runtime
+  ws: WebSocket; // Cloudflare WebSocket
 }
 
 // Factory to create a new rooms map (roomId -> Set<RoomMember>)
@@ -17,13 +18,14 @@ export function joinRoomToMap(
   roomId: string,
   userId: string,
   avatar: string | undefined,
-  ws: any
+  ws: WebSocket
 ) {
   if (!roomsMap.has(roomId)) {
     console.debug(`Creating new room ${roomId}`);
     roomsMap.set(roomId, new Set<RoomMember>());
   }
   roomsMap.get(roomId)!.add({ userId, ws, avatar });
+  ws.serializeAttachment({ roomId, userId, avatar });
   // Broadcast presence to everyone in the room
   const presence = JSON.stringify({
     type: 'presence',
@@ -78,14 +80,24 @@ export function broadcastToRoomInMap(
   if (set.size === 0) roomsMap.delete(roomId);
 }
 
-// Backwards-compatible in-process map and wrappers (deprecated)
-export const rooms = createRoomsMap();
-export function joinRoom(roomId: string, userId: string, avatar: string | undefined, ws: any) {
-  return joinRoomToMap(rooms, roomId, userId, avatar, ws);
+export function joinRoom(
+  connections: Map<string, Set<RoomMember>>,
+  roomId: string,
+  userId: string,
+  avatar: string | undefined,
+  ws: WebSocket
+) {
+  return joinRoomToMap(connections, roomId, userId, avatar, ws);
 }
-export function leaveRoom(ws: any) {
-  return leaveRoomFromMap(rooms, ws);
+
+export function leaveRoom(connections: Map<string, Set<RoomMember>>, ws: WebSocket) {
+  return leaveRoomFromMap(connections, ws);
 }
-export function broadcastToRoom(roomId: string, data: any) {
-  return broadcastToRoomInMap(rooms, roomId, data);
+
+export function broadcastToRoom(
+  connections: Map<string, Set<RoomMember>>,
+  roomId: string,
+  data: any
+) {
+  return broadcastToRoomInMap(connections, roomId, data);
 }

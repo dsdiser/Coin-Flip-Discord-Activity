@@ -59,9 +59,9 @@ describe('miniflare: RoomDO websocket integration', () => {
 
       // Simulate hibernation by disposing and recreating Miniflare, which
       // should rehydrate DOs from persistent storage.
-      await mf.dispose();
+      // wait 10 seconds to ensure DO hibernation
+      await new Promise((r) => setTimeout(r, 10000));
       console.log('Miniflare disposed to simulate hibernation');
-      mf = new Miniflare(miniflareOptions);
       // wait until the new instance is ready (Miniflare exposes `ready` as a
       // promise-like property)
       if (mf.ready) await mf.ready;
