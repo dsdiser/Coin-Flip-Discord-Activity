@@ -49,22 +49,10 @@ export class RoomDO implements DurableObjectClass {
     const [client, server] = Object.values(pair) as [WebSocket, WebSocket];
 
     // Accept the server side so Cloudflare can hibernate the DO when idle
-    try {
-      this.state.acceptWebSocket(server);
-    } catch (err) {
-      console.error('RoomDO: acceptWebSocket failed', err);
-    }
-
-    // Attach basic event handlers on the client socket. Cloudflare will route
-    // webSocketMessage/webSocketClose/webSocketError to Durable Object methods
-    // if using the handler API; but local handlers keep behavior explicit here.
-    try {
-      if (client && typeof client.addEventListener === 'function') {
-        client.addEventListener('close', () => this.removeSocketFromAllRooms(client));
-        client.addEventListener('error', () => this.removeSocketFromAllRooms(client));
-      }
-    } catch (e) {
-      // ignore
+    this.state.acceptWebSocket(server);
+    if (client && typeof client.addEventListener === 'function') {
+      client.addEventListener('close', () => this.removeSocketFromAllRooms(client));
+      client.addEventListener('error', () => this.removeSocketFromAllRooms(client));
     }
 
     try {
@@ -79,7 +67,7 @@ export class RoomDO implements DurableObjectClass {
   }
 
   // Durable Object Hibernation API handlers
-  webSocketMessage(ws: any, data: string) {
+  webSocketMessage(ws: WebSocket, data: string) {
     try {
       const msg = JSON.parse(data.toString());
       if (
@@ -134,7 +122,11 @@ export class RoomDO implements DurableObjectClass {
       }
     }
     set.add(member);
-    member.ws.serializeAttachment({ roomId, userId: member.userId, avatar: member.avatar });
+    member.ws.serializeAttachment({
+      roomId,
+      userId: member.userId,
+      avatar: member.avatar,
+    });
   }
   removeSocketFromAllRooms(ws: any) {
     for (const [roomId, set] of this.connections.entries()) {

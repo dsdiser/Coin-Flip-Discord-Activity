@@ -74,13 +74,10 @@ describe('miniflare: RoomDO websocket integration', () => {
       // Join again from a rehydrated context and broadcast
       ws3.send(JSON.stringify({ type: 'join', roomId: 'r1', userId: 'u3' }));
       await recv(ws3);
-      console.log('ws3 sending chat message to room r1');
       ws3.send(JSON.stringify({ type: 'msg', roomId: 'r1', text: 'after-hib' }));
-      console.log('ws3 sent chat message to room r1');
       // message not making it to ws2
       const m = await recv(ws2);
       expect(m).toContain('after-hib');
-      console.log('done testing');
 
       ws1.close();
       ws2.close();

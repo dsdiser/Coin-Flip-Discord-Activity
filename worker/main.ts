@@ -11,7 +11,7 @@ const APP = new Hono()
 
 console.log('Started webserver and websocket server');
 export default APP;
-type appType = typeof APP;
+export type appType = typeof APP;
 
 // Export the Durable Object class so the Cloudflare runtime can register it
-export { RoomDO, appType };
+export { RoomDO };
