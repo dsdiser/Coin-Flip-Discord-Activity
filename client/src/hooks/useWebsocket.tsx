@@ -105,7 +105,7 @@ export function useWebsocket(roomId: string) {
       }
     };
 
-    ws.onerror = (err) => {
+    ws.onerror = (err: any) => {
       console.warn('Websocket error', err);
     };
 
