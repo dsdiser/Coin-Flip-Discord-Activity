@@ -10,6 +10,7 @@ import {
 } from '../state/websocketAtoms';
 import { seedAtom, startFlipAtom } from '../state/coinAtoms';
 import { hc } from 'hono/client';
+import { type appType } from '../../../worker/main';
 import { userAtom } from '../state/userAtoms';
 import { type RemoteMember, roomMembersAtom } from '../state/userAtoms';
 
@@ -69,7 +70,7 @@ export function useWebsocket(roomId: string) {
 
   useEffect(() => {
     const pingServer = async () => {
-      const client = hc('/');
+      const client = hc<appType>('/');
       const res = await client.ping.$get();
       if (res.status === 200) {
         console.log('Ping successful to server', await res.text());
@@ -81,7 +82,7 @@ export function useWebsocket(roomId: string) {
   }, []);
 
   useEffect(() => {
-    const client = hc(defaultUrl);
+    const client = hc<appType>(defaultUrl);
     const ws = client.ws.$ws(0);
     wsRef.current = ws;
 
