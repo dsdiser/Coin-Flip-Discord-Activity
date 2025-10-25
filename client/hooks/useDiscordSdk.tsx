@@ -5,6 +5,8 @@ import { OAuthScopes } from '@discord/embedded-app-sdk/output/schema/types';
 import type { Auth, User } from '../types/user';
 import { useSetAtom } from 'jotai';
 import { userAtom } from '../state/userAtoms';
+import { hc } from 'hono/client';
+import { appType } from '../../worker/main';
 
 export enum Status {
   Idle = 'idle',
@@ -124,13 +126,11 @@ export const DiscordContextProvider: React.FC<ProviderProps> = ({
         });
 
         // Exchange the code for an access token at our server endpoint
-        const res = await fetch('/api/token', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ code }),
+        const res = await hc<appType>(window.location.origin).api.token.$post({
+          form: { code },
         });
         const body = await res.json();
-        const token = body?.access_token;
+        const token = body.access_token;
         if (!token) {
           throw new Error('Token exchange failed');
         }

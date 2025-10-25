@@ -72,12 +72,6 @@ export class RoomDO implements DurableObjectClass {
         typeof msg.userId === 'string'
       ) {
         this.addMemberToRoom(msg.roomId, { userId: msg.userId, avatar: msg.avatar, ws });
-        // send ack
-        try {
-          ws.send(JSON.stringify({ type: 'joined', roomId: msg.roomId, timestamp: Date.now() }));
-        } catch (e) {
-          console.warn('RoomDO: failed to send join ack', e);
-        }
         // broadcast presence
         this.broadcast(
           msg.roomId,

@@ -45,11 +45,7 @@ export function useWebsocket(roomId: string) {
       // We can then use the atoms directly or use atomWithListeners to use a callback
       switch (parsedMessage.type) {
         case MessageType.Join:
-          // if we get a join message, we need to send a request to get the updated list of room members
-          // since cloudflare workers do not support sending to multiple clients in one request
-
-          // So we need to debounce this a bit to avoid spamming the server if multiple join messages come in quick succession
-          // then send the presence message to get the updated list
+          // No specific handling needed for Join messages currently
           break;
         case MessageType.Presence:
           const members = (parsedMessage as PresenceMessage).members as Array<RemoteMember>;
@@ -69,19 +65,6 @@ export function useWebsocket(roomId: string) {
     },
     [setPushIncoming, setStartFlip]
   );
-
-  useEffect(() => {
-    const pingServer = async () => {
-      const client = hc<appType>('/');
-      const res = await client.ping.$get();
-      if (res.status === 200) {
-        console.log('Ping successful to server', await res.text());
-      } else {
-        console.warn('Ping to server failed with status', res.status);
-      }
-    };
-    pingServer();
-  }, []);
 
   const connectWebsocket = useCallback(() => {
     const client = hc<appType>(defaultUrl);
@@ -111,19 +94,21 @@ export function useWebsocket(roomId: string) {
       console.warn('Websocket error', err);
     };
 
-    ws.onclose = () => {
+    ws.onclose = (shouldRetry: boolean = true) => {
       // noop for now
       console.debug('Websocket closed.');
-      ws.close();
-      setTimeout(() => {
-        connectWebsocket();
-      }, reconnectInterval);
-      reconnectInterval = Math.min(reconnectInterval * 2, maxReconnectInterval); // Exponential backoff
+      // ws.close();
+      if (shouldRetry) {
+        setTimeout(() => {
+          connectWebsocket();
+        }, reconnectInterval);
+        reconnectInterval = Math.min(reconnectInterval * 2, maxReconnectInterval); // Exponential backoff
+      }
     };
 
     return () => {
       try {
-        ws.close();
+        ws.close(false);
       } catch (e) {}
       wsRef.current = null;
     };
