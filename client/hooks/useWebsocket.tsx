@@ -10,7 +10,7 @@ import {
 } from '../state/websocketAtoms';
 import { seedAtom, startFlipAtom } from '../state/coinAtoms';
 import { hc } from 'hono/client';
-import { type appType } from '../../../worker/main';
+import { type appType } from '../../worker/main';
 import { userAtom } from '../state/userAtoms';
 import { type RemoteMember, roomMembersAtom } from '../state/userAtoms';
 

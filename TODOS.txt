@@ -1,7 +1,5 @@
 TODOS
 - Get assets for coin, bot, etc
-- Set up cloudflare durable object, need to refactor. 
-  Make sure to use acceptWebsocket so it can hibernate as needed
 
 Long term TODO:
 - Add animation for moving coin value to user profile
@@ -13,3 +11,5 @@ Done:
 - Fix coin flip animation
 - Write websocket impl
 - Add multiple user profiles
+- Set up cloudflare durable object, need to refactor. 
+  Make sure to use acceptWebsocket so it can hibernate as needed
