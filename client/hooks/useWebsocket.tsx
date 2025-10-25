@@ -28,6 +28,8 @@ let defaultUrl = window.location.origin;
 if (isInIframe) {
   defaultUrl = `wss://${metaVars.VITE_DISCORD_CLIENT_ID}.discordsays.com/.proxy/ws`;
 }
+let reconnectInterval = 1000; // Initial delay in milliseconds
+const maxReconnectInterval = 30000; // Maximum delay in milliseconds
 
 export function useWebsocket(roomId: string) {
   const wsRef = useRef<WebSocket | null>(null);
@@ -81,7 +83,7 @@ export function useWebsocket(roomId: string) {
     pingServer();
   }, []);
 
-  useEffect(() => {
+  const connectWebsocket = useCallback(() => {
     const client = hc<appType>(defaultUrl);
     const ws = client.ws.$ws(0);
     wsRef.current = ws;
@@ -113,6 +115,10 @@ export function useWebsocket(roomId: string) {
       // noop for now
       console.debug('Websocket closed.');
       ws.close();
+      setTimeout(() => {
+        connectWebsocket();
+      }, reconnectInterval);
+      reconnectInterval = Math.min(reconnectInterval * 2, maxReconnectInterval); // Exponential backoff
     };
 
     return () => {
@@ -122,6 +128,14 @@ export function useWebsocket(roomId: string) {
       wsRef.current = null;
     };
   }, [roomId, setPushIncoming]);
+
+  useEffect(() => {
+    const disconnect = connectWebsocket();
+
+    return () => {
+      disconnect();
+    };
+  }, [connectWebsocket]);
 
   const send = useCallback((message: OutgoingMessage) => {
     if (wsRef.current?.readyState !== WebSocket.OPEN) {
