@@ -32,14 +32,14 @@ export const Coin: React.FC<CoinProps> = ({ onFlip, onComplete, initial = 'heads
   const frontLabel = useMemo(() => (current === 'heads' ? 'HEADS' : 'TAILS'), []);
 
   // Initiates websocket message to start flip
-  const initiateFlip = useCallback(() => {
+  const sendFlipMessage = useCallback(() => {
     if (isFlipping || startFlip || !seed) return;
     onFlip();
   }, [isFlipping, startFlip, seed, onFlip]);
 
   // Handles calculating result and animation for flipping the coin
   const flip = useCallback(async () => {
-    if (isFlipping || !seed) return;
+    if (!seed) return;
     setIsFlipping(true);
     const mt = MersenneTwister19937.seed(seed);
     const result: CoinResult = integer(0, 1)(mt) ? 'heads' : 'tails';
@@ -78,7 +78,7 @@ export const Coin: React.FC<CoinProps> = ({ onFlip, onComplete, initial = 'heads
   return (
     <motion.div
       className={styles.coin}
-      onClick={initiateFlip}
+      onClick={sendFlipMessage}
       animate={controls}
       initial={{ rotateY: initial === 'heads' ? 0 : 180 }}
       style={{ rotateY: initial === 'heads' ? 0 : 180 }}
@@ -94,7 +94,7 @@ export const Coin: React.FC<CoinProps> = ({ onFlip, onComplete, initial = 'heads
       onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
-          initiateFlip();
+          sendFlipMessage();
         }
       }}
     >

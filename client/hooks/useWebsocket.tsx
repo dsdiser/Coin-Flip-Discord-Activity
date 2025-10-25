@@ -21,7 +21,7 @@ function createMessageId() {
 }
 
 const isInIframe = window.self !== window.top;
-let defaultUrl = window.location.href;
+let defaultUrl = window.location.origin;
 // In discord iframe can only connect to a websocket that is in proxy
 // Instead of example.com/ws, you use <appid>.discordsays.com/.proxy/ws
 // Make sure the redirect is set up in application's activity URL mappings in dev console

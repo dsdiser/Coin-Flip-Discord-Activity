@@ -17,6 +17,23 @@ export enum Status {
 const generateInstanceId = () => Math.random().toString(36).substring(2, 6);
 const generateUserId = () => (Math.floor(Math.random() * 9000) + 1000).toString();
 
+// get room id from url params
+const getRoomIdFromUrl = () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  return urlParams.get('room') || '';
+};
+
+const getRoomInstance = () => {
+  let roomId = getRoomIdFromUrl();
+  if (!roomId) {
+    roomId = generateInstanceId();
+    const newUrl = new URL(window.location.href);
+    newUrl.searchParams.set('room', roomId);
+    window.history.replaceState({}, '', newUrl.toString());
+  }
+  return roomId;
+};
+
 interface DiscordContextValue {
   discordSdk?: DiscordSDK;
   accessToken?: string | null;
@@ -26,16 +43,6 @@ interface DiscordContextValue {
   error?: Error | null;
   instanceId: string;
 }
-
-const MOCK_DISCORD_CONTEXT_VALUE: DiscordContextValue = {
-  discordSdk: undefined,
-  accessToken: null,
-  authenticated: false,
-  auth: undefined,
-  status: Status.Error,
-  error: new Error('Discord SDK not initialized'),
-  instanceId: generateInstanceId(),
-};
 
 const MOCK_USER: User = {
   id: generateUserId(),
@@ -161,7 +168,7 @@ export const DiscordContextProvider: React.FC<ProviderProps> = ({
     auth,
     status,
     error,
-    instanceId: sdkRef.current?.instanceId || generateInstanceId(),
+    instanceId: sdkRef.current?.instanceId || getRoomInstance(),
   };
 
   if (status === Status.Authenticating && loadingScreen) {
@@ -173,7 +180,19 @@ export const DiscordContextProvider: React.FC<ProviderProps> = ({
 
 export function useDiscordSdk(): DiscordContextValue {
   const ctx = useContext(DiscordContext);
-  if (!ctx) return MOCK_DISCORD_CONTEXT_VALUE;
+  if (!ctx) {
+    const MOCK_DISCORD_CONTEXT_VALUE: DiscordContextValue = {
+      discordSdk: undefined,
+      accessToken: null,
+      authenticated: false,
+      auth: undefined,
+      status: Status.Error,
+      error: new Error('Discord SDK not initialized'),
+      instanceId: getRoomInstance(),
+    };
+    return MOCK_DISCORD_CONTEXT_VALUE;
+  }
+
   return ctx;
 }
 
