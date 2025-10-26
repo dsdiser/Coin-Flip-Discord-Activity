@@ -53,12 +53,27 @@ const CoinFlipApp: React.FC = () => {
     });
   };
 
+  const debugOverlay = (
+    <DebugOverlay
+      status={status}
+      authenticated={authenticated}
+      accessToken={accessToken}
+      error={error}
+      user={user}
+      auth={auth}
+      websocketStatus={connectionStatus}
+    />
+  );
+
   if (!user) {
     return (
-      <div>
-        <div>Missing user object</div>
-        <div> Error {error ? error.message : 'Unknown error'}</div>
-      </div>
+      <>
+        {debugOverlay}
+        <div>
+          <div>Missing user object</div>
+          <div> Error {error ? error.message : 'Unknown error'}</div>
+        </div>
+      </>
     );
   }
   return (
@@ -68,15 +83,7 @@ const CoinFlipApp: React.FC = () => {
         guildId={discordSdk?.guildId || undefined}
         accessToken={accessToken}
       />
-      <DebugOverlay
-        status={status}
-        authenticated={authenticated}
-        accessToken={accessToken}
-        error={error}
-        user={user}
-        auth={auth}
-        websocketStatus={connectionStatus}
-      />
+      {debugOverlay}
       <div className={appStyles.app}>
         <div className={appStyles.player}>
           <div className={appStyles.coinArea}>

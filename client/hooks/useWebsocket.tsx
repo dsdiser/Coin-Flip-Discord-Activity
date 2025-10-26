@@ -13,21 +13,13 @@ import { hc } from 'hono/client';
 import { type appType } from '../../worker/main';
 import { userAtom } from '../state/userAtoms';
 import { type RemoteMember, roomMembersAtom } from '../state/userAtoms';
-
-const metaVars = (import.meta as any).env;
+import { getProxiedUrl } from '../utils/url-proxy';
 
 function createMessageId() {
   return Math.random().toString(36).substring(2) + Date.now().toString(36);
 }
 
-const isInIframe = window.self !== window.top;
-let defaultUrl = window.location.origin;
-// In discord iframe can only connect to a websocket that is in proxy
-// Instead of example.com/ws, you use <appid>.discordsays.com/.proxy/ws
-// Make sure the redirect is set up in application's activity URL mappings in dev console
-if (isInIframe) {
-  defaultUrl = `wss://${metaVars.VITE_DISCORD_CLIENT_ID}.discordsays.com/.proxy/ws`;
-}
+const websocketUrl = getProxiedUrl(window.location.origin);
 let reconnectInterval = 1000; // Initial delay in milliseconds
 const maxReconnectInterval = 30000; // Maximum delay in milliseconds
 
@@ -67,7 +59,7 @@ export function useWebsocket(roomId: string) {
   );
 
   const connectWebsocket = useCallback(() => {
-    const client = hc<appType>(defaultUrl);
+    const client = hc<appType>(websocketUrl);
     const ws = client.ws.$ws(0);
     wsRef.current = ws;
 

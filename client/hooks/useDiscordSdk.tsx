@@ -7,6 +7,7 @@ import { useSetAtom } from 'jotai';
 import { userAtom } from '../state/userAtoms';
 import { hc } from 'hono/client';
 import { appType } from '../../worker/main';
+import { getProxiedUrl } from '../utils/url-proxy';
 
 export enum Status {
   Idle = 'idle',
@@ -126,7 +127,7 @@ export const DiscordContextProvider: React.FC<ProviderProps> = ({
         });
 
         // Exchange the code for an access token at our server endpoint
-        const res = await hc<appType>(window.location.origin).api.token.$post({
+        const res = await hc<appType>(getProxiedUrl(window.location.origin)).api.token.$post({
           json: { code },
         });
         let body, token;
