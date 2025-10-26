@@ -26,7 +26,7 @@ export default defineConfig({
         secure: false,
       },
     },
-    allowedHosts: ['localhost', 'household-pickup-cam-vice.trycloudflare.com'],
+    allowedHosts: ['localhost', 'existence-webcams-station-mini.trycloudflare.com'],
     hmr: {
       host: 'localhost',
     },

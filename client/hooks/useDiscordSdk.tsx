@@ -127,7 +127,7 @@ export const DiscordContextProvider: React.FC<ProviderProps> = ({
 
         // Exchange the code for an access token at our server endpoint
         const res = await hc<appType>(window.location.origin).api.token.$post({
-          form: { code },
+          json: { code },
         });
         let body, token;
         try {

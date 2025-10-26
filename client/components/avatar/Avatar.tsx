@@ -54,6 +54,7 @@ export const Avatar: React.FC<AvatarProps> = ({ guildId, accessToken, avatar, us
       method: 'GET',
       headers: {
         Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
       },
     })
       .then((response) => {

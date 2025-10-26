@@ -11,7 +11,6 @@ export const apiApp = new Hono<{ Bindings: Env }>()
   .post('/api/token', async (c) => {
     const ip = c.req.header('x-forwarded-for') || (c.req as any).conn?.remoteAddr || 'unknown';
     console.debug('Got request for /api/token for ' + ip);
-
     const body = await c.req.json();
     const code = body?.code;
 
