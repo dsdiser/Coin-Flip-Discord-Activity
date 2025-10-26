@@ -1,7 +1,14 @@
-import { Hono } from 'hono';
+import { Hono, HonoRequest } from 'hono';
 
-export const apiApp = new Hono()
-  .post('/api/token', async (c: any) => {
+interface OAuthResponse {
+  access_token: string;
+  token_type: string;
+  expires_in: number;
+  scope: string;
+}
+
+export const apiApp = new Hono<{ Bindings: Env }>()
+  .post('/api/token', async (c) => {
     const ip = c.req.header('x-forwarded-for') || (c.req as any).conn?.remoteAddr || 'unknown';
     console.debug('Got request for /api/token for ' + ip);
 
@@ -22,7 +29,7 @@ export const apiApp = new Hono()
       }),
     });
 
-    const data = (await response.json()) as any;
+    const data = (await response.json()) as OAuthResponse;
     const access_token = (data && data.access_token) || null;
 
     return c.json({ access_token });

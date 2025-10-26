@@ -1,5 +1,5 @@
 {
-  "name": "coin-flip-discord-activity",
+  "name": "flip-with-friends",
   "compatibility_date": "2025-04-03",
   "assets": {
     "not_found_handling": "single-page-application",
@@ -20,5 +20,12 @@
       "tag": "v1",
       "new_sqlite_classes": ["RoomDO"]
     }
-  ]
+  ],
+  "observability": {
+    "logs": {
+      "enabled": true,
+      "head_sampling_rate": 1,
+      "invocation_logs": true
+    }
+  }
 }

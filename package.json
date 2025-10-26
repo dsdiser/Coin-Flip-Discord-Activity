@@ -14,10 +14,9 @@
   "author": "",
   "license": "ISC",
   "scripts": {
+    "cf-typegen": "wrangler types",
     "dev": "vite",
-    "dev:cloudflare": "set VITE_DEV_CLOUDFLARE=1 && vite",
-    "build": "npm run build:client && npm run build:worker",
-    "build:client": "vite build",
+    "build": "vite build",
     "build:worker": "esbuild worker/main.ts --bundle --format=esm --platform=neutral --outfile=worker/dist/main.js --target=es2022",
     "preview": "vite preview",
     "test": "vitest",

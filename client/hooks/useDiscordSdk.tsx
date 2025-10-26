@@ -129,8 +129,12 @@ export const DiscordContextProvider: React.FC<ProviderProps> = ({
         const res = await hc<appType>(window.location.origin).api.token.$post({
           form: { code },
         });
-        const body = await res.json();
-        const token = body.access_token;
+        try {
+          const body = await res.json();
+          const token = body.access_token;
+        } catch {
+          throw new Error(`JSON parsing failed for blob ${await res.text()}`);
+        }
         if (!token) {
           throw new Error('Token exchange failed');
         }
