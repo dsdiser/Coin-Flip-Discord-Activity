@@ -57,7 +57,7 @@ const CoinFlipApp: React.FC = () => {
     return (
       <div>
         <div>Missing user object</div>
-        <button>Flip locally</button>
+        <div> Error {error ? error.message : 'Unknown error'}</div>
       </div>
     );
   }
