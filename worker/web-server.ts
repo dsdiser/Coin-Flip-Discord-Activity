@@ -13,7 +13,7 @@ export const apiApp = new Hono<{ Bindings: Env }>()
     console.debug('Got request for /api/token for ' + ip);
 
     const body = await c.req.json();
-    const code = body?.code || '';
+    const code = body?.code;
 
     // Exchange the code for an access_token
     const response = await fetch('https://discord.com/api/oauth2/token', {
@@ -22,13 +22,22 @@ export const apiApp = new Hono<{ Bindings: Env }>()
         'Content-Type': 'application/x-www-form-urlencoded',
       },
       body: new URLSearchParams({
-        client_id: c.env.VITE_DISCORD_CLIENT_ID || '',
-        client_secret: c.env.DISCORD_CLIENT_SECRET || '',
+        client_id: c.env.VITE_DISCORD_CLIENT_ID,
+        client_secret: c.env.DISCORD_CLIENT_SECRET,
         grant_type: 'authorization_code',
         code,
       }),
     });
-
+    // It looks like we aren't getting a successful response back here sometimes
+    if (!response.ok) {
+      const errorText = await response.text();
+      return c.json(
+        {
+          error: `Failed to exchange code for access token ${response.status} ${response.statusText} - ${errorText}`,
+        },
+        500
+      );
+    }
     const data = (await response.json()) as OAuthResponse;
     const access_token = (data && data.access_token) || null;
 
