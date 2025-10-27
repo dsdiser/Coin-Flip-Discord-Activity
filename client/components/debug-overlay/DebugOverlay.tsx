@@ -54,7 +54,7 @@ export default function DebugOverlay(props: {
                 : ' UNKNOWN'}
             </strong>
           </div>
-          <div>Hostname: {window.location.hostname}</div>
+          <div>Hostname: {window.location.origin}</div>
           <div>
             Status: <strong>{props.status}</strong>
           </div>

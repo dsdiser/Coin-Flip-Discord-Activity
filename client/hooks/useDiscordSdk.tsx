@@ -127,18 +127,23 @@ export const DiscordContextProvider: React.FC<ProviderProps> = ({
         });
 
         // Exchange the code for an access token at our server endpoint
-        const res = await hc<appType>(getProxiedUrl(window.location.origin)).api.token.$post({
-          json: { code },
-        });
+        const res = await hc<appType>(getProxiedUrl(window.location.origin))
+          .api.token.$post({
+            json: { code },
+          })
+          .catch((err) => {
+            throw new Error(
+              `Token exchange request failed: ${err instanceof Error ? err.message : String(err)}`
+            );
+          });
         let body, token;
         try {
           body = await res.json();
           token = body.access_token;
         } catch {
-          throw new Error(`JSON parsing failed for blob ${body}`);
-        }
-        if (!token) {
-          throw new Error('Token exchange failed');
+          throw new Error(
+            `JSON parsing failed for blob ${body} STATUS:${res.status} ${res.statusText}`
+          );
         }
         if (!mounted) return;
         setAccessToken(token);
