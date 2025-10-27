@@ -12,6 +12,7 @@ import { setRandomSeedAtom, seedAtom } from './state/coinAtoms';
 import { userAtom, roomMembersAtom } from './state/userAtoms';
 import { AvatarOverlay } from './components/avatar-overlay/AvatarOverlay';
 import { MessageType } from './state/websocketAtoms';
+import LoadingScreen from './components/loading-screen/LoadingScreen';
 
 const App: React.FC = () => {
   const inIframe = window.self !== window.top;
@@ -76,6 +77,16 @@ const CoinFlipApp: React.FC = () => {
       </>
     );
   }
+
+  if (connectionStatus == 0) {
+    return (
+      <>
+        {debugOverlay}
+        <LoadingScreen message="Connecting to room" />
+      </>
+    );
+  }
+
   return (
     <>
       <AvatarOverlay
@@ -87,6 +98,7 @@ const CoinFlipApp: React.FC = () => {
       <div className={appStyles.app}>
         <div className={appStyles.player}>
           <div className={appStyles.coinArea}>
+            {connectionStatus == 3 && <div className={appStyles.errorIcon}>!</div>}
             <Coin onFlip={handleFlipSend} onComplete={onFlipResult} />
           </div>
           {/* {history.length > 0 && (

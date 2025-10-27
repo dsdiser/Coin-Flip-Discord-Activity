@@ -142,7 +142,7 @@ export const DiscordContextProvider: React.FC<ProviderProps> = ({
           token = body.access_token;
         } catch {
           throw new Error(
-            `JSON parsing failed for blob ${body} STATUS:${res.status} ${res.statusText}`
+            `JSON parsing failed for blob ${body} STATUS:${res.status} ${res.statusText} ${res.url}`
           );
         }
         if (!mounted) return;

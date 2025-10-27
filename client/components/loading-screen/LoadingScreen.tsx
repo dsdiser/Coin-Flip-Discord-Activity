@@ -1,11 +1,12 @@
 import React from 'react';
 import styles from './LoadingScreen.module.css';
 
-const LoadingScreen: React.FC = () => {
+const LoadingScreen: React.FC<{ message?: string }> = ({ message = 'Loading...' }) => {
   return (
     <div className={styles.loadingScreen} role="status" aria-live="polite">
       <div className={styles.loadingEllipsis}>
-        Loading<span className={styles.dot}>.</span>
+        {message}
+        <span className={styles.dot}>.</span>
         <span className={styles.dot}>.</span>
         <span className={styles.dot}>.</span>
       </div>
