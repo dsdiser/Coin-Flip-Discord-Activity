@@ -136,15 +136,13 @@ export const DiscordContextProvider: React.FC<ProviderProps> = ({
               `Token exchange request failed: ${err instanceof Error ? err.message : String(err)}`
             );
           });
-        let body, token;
-        try {
-          body = await res.json();
-          token = body.access_token;
-        } catch {
+        const body = await res.json();
+        if (body.error) {
           throw new Error(
-            `JSON parsing failed for blob ${body} STATUS:${res.status} ${res.statusText} ${res.url}`
+            `Token exchange failed: ${body.error} STATUS:${res.status} ${res.statusText} ${res.url}`
           );
         }
+        const token = body.access_token;
         if (!mounted) return;
         setAccessToken(token);
 

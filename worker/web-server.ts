@@ -33,6 +33,7 @@ export const apiApp = new Hono<{ Bindings: Env }>()
       return c.json(
         {
           error: `Failed to exchange code for access token ${response.status} ${response.statusText} - ${errorText}`,
+          access_token: null,
         },
         500
       );
@@ -40,7 +41,7 @@ export const apiApp = new Hono<{ Bindings: Env }>()
     const data = (await response.json()) as OAuthResponse;
     const access_token = (data && data.access_token) || null;
 
-    return c.json({ access_token });
+    return c.json({ access_token, error: null });
   })
   .get('/ping', (c) => {
     return c.text('pong');
