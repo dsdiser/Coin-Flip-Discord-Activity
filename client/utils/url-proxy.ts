@@ -1,5 +1,3 @@
-const metaVars = (import.meta as any).env;
-
 export function getProxiedUrl(originalUrl: string): string {
   const isInIframe = window.self !== window.top;
   const url = new URL(originalUrl);

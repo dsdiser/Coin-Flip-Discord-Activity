@@ -1,4 +1,4 @@
-import { Hono, HonoRequest } from 'hono';
+import { Context, Hono } from 'hono';
 
 interface OAuthResponse {
   access_token: string;
@@ -8,7 +8,7 @@ interface OAuthResponse {
 }
 
 export const apiApp = new Hono<{ Bindings: Env }>()
-  .post('/api/token', async (c) => {
+  .on(['POST'], ['/token', '/token/'], async (c: Context) => {
     const ip = c.req.header('x-forwarded-for') || (c.req as any).conn?.remoteAddr || 'unknown';
     console.debug('Got request for /api/token for ' + ip);
     const body = await c.req.json();

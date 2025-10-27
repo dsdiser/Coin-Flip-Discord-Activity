@@ -26,7 +26,7 @@ export default defineConfig({
         secure: false,
       },
     },
-    allowedHosts: ['localhost', 'existence-webcams-station-mini.trycloudflare.com'],
+    allowedHosts: ['localhost', 'pink-blades-namespace-artificial.trycloudflare.com'],
     hmr: {
       host: 'localhost',
     },

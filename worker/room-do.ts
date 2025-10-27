@@ -25,11 +25,12 @@ export class RoomDO implements DurableObjectClass {
         for (const ws of websockets) {
           // Recreates rooms after hibernation based on serialized attachment
           let meta = ws.deserializeAttachment();
+          if (!meta || !meta.roomId || !meta.userId) continue;
           this.addMemberToRoom(meta.roomId, { userId: meta.userId, avatar: meta.avatar, ws });
         }
       }
     } catch (e) {
-      console.debug('RoomDO: getWebSockets not available during construction');
+      console.debug('RoomDO: websocket rehydration failed', e);
     }
   }
 

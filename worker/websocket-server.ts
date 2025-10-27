@@ -2,7 +2,7 @@ import { Hono } from 'hono';
 
 // Forward websocket upgrade requests to the RoomDO durable object.
 // Uses a single default Durable Object instance for simplicity.
-export const WebSocketApp = new Hono().get('/', async (c: any) => {
+export const WebSocketApp = new Hono().on(['GET'], ['/initiate', '/initiate/'], async (c: any) => {
   if (c.req.header('upgrade') !== 'websocket') {
     return c.text('Expected Upgrade: websocket', 426);
   }
