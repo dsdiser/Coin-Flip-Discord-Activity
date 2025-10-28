@@ -78,7 +78,7 @@ const CoinFlipApp: React.FC = () => {
     );
   }
 
-  if (connectionStatus in [0, 3]) {
+  if ([0, 3].includes(connectionStatus)) {
     return (
       <>
         {debugOverlay}
