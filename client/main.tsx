@@ -78,7 +78,7 @@ const CoinFlipApp: React.FC = () => {
     );
   }
 
-  if (connectionStatus == 0) {
+  if (connectionStatus in [0, 3]) {
     return (
       <>
         {debugOverlay}
@@ -98,7 +98,6 @@ const CoinFlipApp: React.FC = () => {
       <div className={appStyles.app}>
         <div className={appStyles.player}>
           <div className={appStyles.coinArea}>
-            {connectionStatus == 3 && <div className={appStyles.errorIcon}>!</div>}
             <Coin onFlip={handleFlipSend} onComplete={onFlipResult} />
           </div>
           {/* {history.length > 0 && (
