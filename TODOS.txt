@@ -1,7 +1,6 @@
 TODOS
 - Get assets for coin, bot, etc
 - Discord speaking overlay (ie green outline)
-- Update README
 
 Long term TODO:
 - Add animation for moving coin value to user profile

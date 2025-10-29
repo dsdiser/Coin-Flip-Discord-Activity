@@ -36,10 +36,9 @@ npm run dev
 Available scripts:
 
 - `npm run dev` - Start development server with Vite
-- `npm run build` - Build the client application
-- `npm run build:worker` - Build the Cloudflare Worker
-- `npm run preview` - Preview the built application
-- `npm run test` - Run tests (builds worker first)
+- `npm run build` - Build the client app
+- `npm run preview` - Preview the built app
+- `npm run test` - Run tests (builds the server code first in order to use for integration testing with Miniflare)
 - `npm run cf-typegen` - Generate Cloudflare Worker types
 
 ## Deployment

@@ -17,10 +17,9 @@
     "cf-typegen": "wrangler types",
     "dev": "vite",
     "build": "vite build",
-    "build:worker": "esbuild worker/main.ts --bundle --format=esm --platform=neutral --outfile=worker/dist/main.js --target=es2022",
     "preview": "vite preview",
     "test": "vitest",
-    "pretest": "npm run build:worker"
+    "pretest": "esbuild worker/main.ts --bundle --format=esm --platform=neutral --outfile=worker/dist/main.js --target=es2022"
   },
   "dependencies": {
     "@discord/embedded-app-sdk": "^2.4.0",

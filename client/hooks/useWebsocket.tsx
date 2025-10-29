@@ -60,7 +60,9 @@ export function useWebsocket(roomId: string) {
 
   const connectWebsocket = useCallback(() => {
     const client = hc<appType>(websocketUrl);
-    const ws = client.ws.initiate.$ws(0);
+    // Typing is weird here, but it works
+    const ws: WebSocket = client.ws.initiate.$ws(0);
+    console.log(ws);
     wsRef.current = ws;
 
     ws.onopen = () => {
