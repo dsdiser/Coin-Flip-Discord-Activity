@@ -52,4 +52,4 @@ This project is designed to run on Cloudflare Workers with:
 
 Use `wrangler.jsonc` and environment variables to configure deployment settings.
 
-The client uses the Discord Embedded App SDK to run as an Activity inside Discord.
+The client uses the Discord Embedded App SDK to run as an Activity inside Discord. Make sure to set up Discord redirects in the application to ensure traffic gets routed properly from inside the iframe.
