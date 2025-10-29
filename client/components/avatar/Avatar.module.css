@@ -3,6 +3,22 @@
   width: 64px;
   height: 64px;
   overflow: hidden; /* clip image to circle */
+  padding: 3px;
+}
+
+/* Responsive avatar sizes for smaller screens */
+@media (max-width: 768px) {
+  .avatar {
+    width: 48px;
+    height: 48px;
+  }
+}
+
+@media (max-width: 480px) {
+  .avatar {
+    width: 40px;
+    height: 40px;
+  }
 }
 
 .img {
@@ -16,4 +32,9 @@
   display: block;
   border-radius: 50%; /* double-safety in case image edges show */
   background-color: transparent;
+  transition: border 0.2s ease;
+}
+
+.speaking .img {
+  outline: 3px solid #43a35a;
 }

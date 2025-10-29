@@ -91,8 +91,8 @@ const CoinFlipApp: React.FC = () => {
     <>
       <AvatarOverlay
         users={roomMembers.map((m) => ({ id: m.id, avatar: m.avatar }))}
-        guildId={discordSdk?.guildId || undefined}
         accessToken={accessToken}
+        discordSdk={discordSdk}
       />
       {debugOverlay}
       <div className={appStyles.app}>

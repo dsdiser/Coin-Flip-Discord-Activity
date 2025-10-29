@@ -9,6 +9,7 @@ interface AvatarProps {
   accessToken?: string | null; // Discord OAuth2 access token
   avatar?: string | null; // User's avatar hash from Discord
   userId: string; // User's Discord or randomized ID
+  isSpeaking?: boolean; // Whether the user is currently speaking
 }
 
 const transition: Transition = {
@@ -20,7 +21,13 @@ const transition: Transition = {
 /**
  * Avatar component to display user's avatar image.
  */
-export const Avatar: React.FC<AvatarProps> = ({ guildId, accessToken, avatar, userId }) => {
+export const Avatar: React.FC<AvatarProps> = ({
+  guildId,
+  accessToken,
+  avatar,
+  userId,
+  isSpeaking = false,
+}) => {
   const [avatarUrl, setAvatarUrl] = React.useState<string | null>(null);
   const startFlip = useAtomValue(startFlipAtom);
   const controls = useAnimation();
@@ -79,7 +86,10 @@ export const Avatar: React.FC<AvatarProps> = ({ guildId, accessToken, avatar, us
   }
 
   return (
-    <motion.div className={styles.avatar} animate={controls}>
+    <motion.div
+      className={`${styles.avatar} ${isSpeaking ? styles.speaking : ''}`}
+      animate={controls}
+    >
       <img
         src={avatarUrl}
         width="64"
