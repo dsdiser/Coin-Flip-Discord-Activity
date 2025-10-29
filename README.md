@@ -1,8 +1,8 @@
 # Coin Flip — Discord Activity
 
-Multiplayer lobby that runs as a Discord Activity so you can flip coins together inside Discord.
+Multiplayer lobby that runs as a Discord Activity so you can flip coins together inside Discord or on any webpage.
 
-## Goals
+## Features
 
 - Multiplayer lobby for joining a coin flip session
 - Real-time flips resolved in the activity or on the webpage
@@ -11,41 +11,45 @@ Multiplayer lobby that runs as a Discord Activity so you can flip coins together
 
 Client (UI):
 
-- React - Typescript
+- React - TypeScript
 - @discord/embedded-app-sdk
-- Vite (dev)
-- ojs (for background animation shader)
-- Framer Motion (for coin animation)
-- random.js (prng)
+- Vite (dev & build)
+- OGL (for background animation shader)
+- Motion (for coin animation)
+- random-js (prng)
+- Jotai (state management)
 
-Server:
+Server (Cloudflare Worker):
 
-- Express
-- dotenv (for simple env config)
-- node-fetch
+- Hono (web framework)
+- Durable Objects for session management + Websocket Hibernation
 
 ## Quick start (development)
 
-Open two terminals and run the client and server (if you want the server):
-
-Client (from repository root):
+From the repository root:
 
 ```cmd
-cd client
 npm install
 npm run dev
 ```
 
-Server:
+Available scripts:
 
-```cmd
-cd server
-npm install
-npm run dev
-```
+- `npm run dev` - Start development server with Vite
+- `npm run build` - Build the client application
+- `npm run build:worker` - Build the Cloudflare Worker
+- `npm run preview` - Preview the built application
+- `npm run test` - Run tests (builds worker first)
+- `npm run cf-typegen` - Generate Cloudflare Worker types
 
-## Productionizing
+## Deployment
 
-Use .env and .env.production to set environment variables for the server and client.
+This project is designed to run on Cloudflare Workers with:
 
-The client uses the Embedded App SDK to run as an Activity inside Discord.
+- Static assets served via Cloudflare Pages/Workers
+- WebSocket connections handled by Durable Objects
+- Real-time multiplayer state management
+
+Use `wrangler.jsonc` and environment variables to configure deployment settings.
+
+The client uses the Discord Embedded App SDK to run as an Activity inside Discord.
