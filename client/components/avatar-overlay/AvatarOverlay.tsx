@@ -7,23 +7,10 @@ type UserLike = {
   id: string;
   avatar?: string;
 };
-type ParticipantsUpdateEvent = {
-  participants: {
-    username: string;
-    discriminator: string;
-    id: string;
-    bot: boolean;
-    flags: number;
-    avatar?: string | null;
-    global_name?: string | null;
-    avatar_decoration_data?: {
-      asset: string;
-      skuId?: string;
-      expiresAt?: number;
-    } | null;
-    premium_type?: number | null;
-    nickname?: string;
-  }[];
+type VoiceUserEvent = {
+  user_id: string;
+  channel_id?: string | undefined;
+  lobby_id?: string | undefined;
 };
 
 interface AvatarOverlayProps {
@@ -74,35 +61,34 @@ export const AvatarOverlay: React.FC<AvatarOverlayProps> = ({ users, accessToken
   useEffect(() => {
     if (!discordSdk) return;
 
-    const updateActiveSpeaker = (event: ParticipantsUpdateEvent) => {
-      // Extract speaking users from the participants data
-      // The event contains participants with speaking status
-      const currentlySpeaking = new Set<string>();
-      event.participants.forEach((participant) => {
-        // Check if participant is speaking and is in our visible users list
-        if (participant.id) {
-          const isVisible = visible.some((user) => user.id === participant.id);
-          if (isVisible) {
-            currentlySpeaking.add(participant.id);
-          }
-        }
-      });
-
-      // Only update state if there's a change
+    const removeActiveSpeaker = (event: VoiceUserEvent) => {
       setSpeakingUsers((prevSpeaking) => {
-        if (
-          prevSpeaking.size !== currentlySpeaking.size ||
-          ![...prevSpeaking].every((id, _i) => currentlySpeaking.has(id))
-        ) {
-          return currentlySpeaking;
-        }
-        return prevSpeaking;
+        const newSpeaking = new Set(prevSpeaking);
+        newSpeaking.delete(event.user_id);
+        return newSpeaking;
       });
     };
-    discordSdk.subscribe(Events.ACTIVITY_INSTANCE_PARTICIPANTS_UPDATE, updateActiveSpeaker);
-    // Unsubscribe
+    const addActiveSpeaker = (event: VoiceUserEvent) => {
+      setSpeakingUsers((prevSpeaking) => {
+        const newSpeaking = new Set(prevSpeaking);
+        newSpeaking.add(event.user_id);
+        return newSpeaking;
+      });
+    };
+
+    discordSdk.subscribe(Events.SPEAKING_START, addActiveSpeaker, {
+      channel_id: discordSdk.channelId,
+    });
+    discordSdk.subscribe(Events.SPEAKING_STOP, removeActiveSpeaker, {
+      channel_id: discordSdk.channelId,
+    });
     return () => {
-      discordSdk.unsubscribe(Events.ACTIVITY_INSTANCE_PARTICIPANTS_UPDATE, updateActiveSpeaker);
+      discordSdk.unsubscribe(Events.SPEAKING_START, addActiveSpeaker, {
+        channel_id: discordSdk.channelId,
+      });
+      discordSdk.unsubscribe(Events.SPEAKING_STOP, removeActiveSpeaker, {
+        channel_id: discordSdk.channelId,
+      });
     };
   }, [discordSdk, accessToken, visible]);
 
