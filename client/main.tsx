@@ -63,6 +63,7 @@ const CoinFlipApp: React.FC = () => {
       user={user}
       auth={auth}
       websocketStatus={connectionStatus}
+      discordSdk={discordSdk}
     />
   );
 

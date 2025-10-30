@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import styles from './DebugOverlay.module.css';
+import { DiscordSDK } from '@discord/embedded-app-sdk';
 
 export default function DebugOverlay(props: {
   status: string;
@@ -9,6 +10,7 @@ export default function DebugOverlay(props: {
   user: any;
   auth: any;
   websocketStatus: number; // WebSocket status code
+  discordSdk?: DiscordSDK;
 }) {
   const [open, setOpen] = useState(false);
   return (
@@ -60,6 +62,9 @@ export default function DebugOverlay(props: {
           </div>
           <div>
             Error: <strong>{props.error ? props.error.message : 'none'}</strong>
+          </div>
+          <div>
+            Channel ID : <strong>{props.discordSdk?.channelId || 'none'}</strong>
           </div>
           <div className={styles.mt8}>
             <pre className={styles.debugPre}>
