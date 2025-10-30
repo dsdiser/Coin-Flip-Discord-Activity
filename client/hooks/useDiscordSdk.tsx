@@ -55,6 +55,7 @@ const MOCK_USER: User = {
 };
 
 const DiscordContext = createContext<DiscordContextValue | undefined>(undefined);
+const scope = ['identify', 'guilds', 'guilds.members.read', 'rpc.voice.read'];
 
 interface ProviderProps {
   children: ReactNode;
@@ -66,7 +67,6 @@ interface ProviderProps {
 export const DiscordContextProvider: React.FC<ProviderProps> = ({
   children,
   authenticateWithDiscord = false,
-  scope = ['identify', 'guilds', 'rpc.voice.read'],
   loadingScreen = <LoadingScreen />,
 }) => {
   const clientId = (import.meta as any).env?.VITE_DISCORD_CLIENT_ID;
