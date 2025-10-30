@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './styles/global.css';
 import appStyles from './components/App.module.css';
@@ -21,10 +21,7 @@ const App: React.FC = () => {
   return (
     <>
       <BalatroBackground />
-      <DiscordContextProvider
-        authenticateWithDiscord={shouldAuth}
-        scope={['identify', 'guilds', 'guilds.members.read']}
-      >
+      <DiscordContextProvider authenticateWithDiscord={shouldAuth}>
         <CoinFlipApp />
       </DiscordContextProvider>
     </>
@@ -34,7 +31,6 @@ const App: React.FC = () => {
 const CoinFlipApp: React.FC = () => {
   const { discordSdk, status, authenticated, accessToken, auth, error, instanceId } =
     useDiscordSdk();
-  const [history, setHistory] = useState<Array<{ result: CoinResult; timestamp: number }>>([]);
   const user = useAtomValue(userAtom);
   const roomMembers = useAtomValue(roomMembersAtom);
   const seed = useAtomValue(seedAtom);
@@ -101,18 +97,6 @@ const CoinFlipApp: React.FC = () => {
           <div className={appStyles.coinArea}>
             <Coin onFlip={handleFlipSend} onComplete={onFlipResult} />
           </div>
-          {/* {history.length > 0 && (
-            <div className={appStyles.history}>
-              <h3>History</h3>
-              <ul>
-                {history.map((h, idx) => (
-                  <li key={h.timestamp + idx}>
-                    {new Date(h.timestamp).toLocaleTimeString()} — {h.result}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )} */}
         </div>
       </div>
     </>
