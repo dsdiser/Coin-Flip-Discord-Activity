@@ -14,8 +14,9 @@ import { AvatarOverlay } from './components/avatar-overlay/AvatarOverlay';
 import { MessageType } from './state/websocketAtoms';
 import LoadingScreen from './components/loading-screen/LoadingScreen';
 
+const inIframe = window.self !== window.top;
+
 const App: React.FC = () => {
-  const inIframe = window.self !== window.top;
   const shouldAuth = inIframe; // Only authenticate if in an iframe (i.e. in Discord)
 
   return (
@@ -37,9 +38,8 @@ const CoinFlipApp: React.FC = () => {
   const setRandomSeed = useSetAtom(setRandomSeedAtom);
   const { send, connectionStatus } = useWebsocket(instanceId);
 
-  function onFlipResult(result: CoinResult) {
+  function onFlipResult(_result: CoinResult) {
     setRandomSeed();
-    setHistory((prev) => [...prev, { result: result as CoinResult, timestamp: Date.now() }]);
   }
 
   const handleFlipSend = () => {
@@ -50,7 +50,7 @@ const CoinFlipApp: React.FC = () => {
     });
   };
 
-  const debugOverlay = (
+  const debugOverlay = !inIframe && (
     <DebugOverlay
       status={status}
       authenticated={authenticated}

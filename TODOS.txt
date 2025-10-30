@@ -1,11 +1,11 @@
 TODOS
 - Get assets for coin, bot, etc
-- Discord speaking overlay (ie green outline)
 
 Long term TODO:
 - Add animation for moving coin value to user profile
 
 Done:
+- Discord speaking overlay (ie green outline)
 - Slow down the coin flip before animation finishes
 - Add background spinning when animation is playing
 - Shake profiles when spinning. 
