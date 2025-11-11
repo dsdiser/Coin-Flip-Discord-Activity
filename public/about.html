@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <link rel="stylesheet" href="monospace-web/reset.css" />
+  <link rel="stylesheet" href="monospace-web/index.css" />
+  <script src="monospace-web/index.js"></script>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>About - Flip with Friends</title>
+  </head>
+  <body>
+    <h1>About</h1>
+    <hr />
+
+    <p>
+      Welcome to Flip with Friends. This is a website / Discord Activity where you can virtually
+      flip coins in a shared multiplayer room. Enjoy!
+    </p>
+
+    <p>
+      If you're using this from the web and would like to use it in Discord, you can add it to your
+      server by copying the following link, pasting it into your server, and opening it:
+    </p>
+    <code>
+      https://discord.com/oauth2/authorize?client_id=1420904876464144415&response_type=code&redirect_uri=https%3A%2F%2Fflip-with-friends.dsdiser.workers.dev%2F&scope=identify+guilds+rpc.voice.read
+    </code>
+    <button onclick="copyLink()">↑ Copy Link</button>
+
+    <p>This app was built by <a href="https://github.com/dsdiser">Dan Diseroad (muhmaxim)</a></p>
+    <p>Coin art by <a href="https://www.tiantheplant.com/">Tian Yang</a></p>
+
+    <hr />
+    <a href="https://github.com/maxcarter/coin-flip-discord-activity">Github Source</a>
+    <a href="https://github.com/owickstrom/the-monospace-web">Monospace Web Styling</a>
+    <p>
+      <button onclick="window.location.href='/'">← Back to the Game</button>
+    </p>
+  </body>
+  <script>
+    function copyLink() {
+      const link =
+        'https://discord.com/oauth2/authorize?client_id=1420904876464144415&response_type=code&redirect_uri=https%3A%2F%2Fflip-with-friends.dsdiser.workers.dev%2F&scope=identify+guilds+rpc.voice.read';
+      navigator.clipboard.writeText(link);
+    }
+  </script>
+</html>
