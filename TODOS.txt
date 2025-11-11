@@ -1,5 +1,8 @@
 TODOS
 - Get assets for coin, bot, etc
+- Add input field for roomId that is overridden by instanceId
+- Other asset for person for web version
+- New URL for deployment
 
 Long term TODO:
 - Add animation for moving coin value to user profile
