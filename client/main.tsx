@@ -68,8 +68,8 @@ const CoinFlipApp: React.FC = () => {
       <>
         {debugOverlay}
         <div>
-          <div>Missing user object</div>
-          <div> Error {error ? error.message : 'Unknown error'}</div>
+          <div>Failed to authenticate with Discord, try relaunching the activity!</div>
+          <div> Debug info: {error ? error.message : 'Unknown error'}</div>
         </div>
       </>
     );
