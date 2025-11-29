@@ -22,24 +22,10 @@
 }
 
 .front {
-  background: linear-gradient(180deg, #ffd166, #f7a400);
+  background: url('/images/heads.png') center/cover no-repeat;
 }
 
 .back {
-  background: linear-gradient(180deg, #00b4d8, #0077b6);
+  background: url('/images/tails.png') center/cover no-repeat;
   transform: rotateY(180deg);
-}
-
-.side {
-  position: absolute;
-  inset: 0;
-  width: 10px;
-  border-radius: 100%;
-  backface-visibility: hidden;
-  background: #ffffff;
-  transform: rotateY(90deg);
-}
-
-.label {
-  font-size: 20px;
 }

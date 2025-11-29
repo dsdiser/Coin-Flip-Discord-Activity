@@ -29,7 +29,6 @@ export const Coin: React.FC<CoinProps> = ({ onFlip, onComplete, initial = 'heads
   const [current, setCurrent] = useState(initial);
   const [isFlipping, setIsFlipping] = useState(false);
   const [startFlip, setStartFlip] = useAtom(startFlipAtom);
-  const frontLabel = useMemo(() => (current === 'heads' ? 'HEADS' : 'TAILS'), []);
 
   // Initiates websocket message to start flip
   const sendFlipMessage = useCallback(() => {
@@ -98,13 +97,8 @@ export const Coin: React.FC<CoinProps> = ({ onFlip, onComplete, initial = 'heads
         }
       }}
     >
-      <div className={styles.face + ' ' + styles.front}>
-        <div className={styles.label}>{frontLabel}</div>
-      </div>
-      <div className={styles.side} />
-      <div className={styles.face + ' ' + styles.back}>
-        <div className={styles.label}>{frontLabel === 'HEADS' ? 'TAILS' : 'HEADS'}</div>
-      </div>
+      <div className={styles.face + ' ' + styles.front} />
+      <div className={styles.face + ' ' + styles.back} />
     </motion.div>
   );
 };

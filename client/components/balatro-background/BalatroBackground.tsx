@@ -102,7 +102,7 @@ void main() {
 `;
 
 const baseMouseInfluence: Array<number> = [0.5, 0.5];
-// usually light to dark
+// usually light to dark is good for color palettes here
 const palettes: Array<[string, string, string]> = [
   ['#476952', '#404040', '#142021'],
   ['#DE443B', '#006BB4', '#162325'],
