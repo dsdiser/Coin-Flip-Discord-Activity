@@ -17,22 +17,31 @@ export enum Status {
   Error = 'error',
 }
 
-const generateInstanceId = () => Math.random().toString(36).substring(2, 6);
+const generateInstanceId = () => Math.random().toString(36).substring(2, 6).toUpperCase();
 const generateUserId = () => (Math.floor(Math.random() * 9000) + 1000).toString();
+
+export const setInstanceIdInUrl = (instanceId: string) => {
+  const url = new URL(window.location.href);
+  url.searchParams.set('room', instanceId);
+  window.history.replaceState({}, '', url.toString());
+};
 
 // get room id from url params
 const getRoomIdFromUrl = () => {
   const urlParams = new URLSearchParams(window.location.search);
-  return urlParams.get('room') || '';
+  let roomParam = urlParams.get('room');
+  // room id should be alphanumeric only and max 4 chars
+  if (roomParam && (!/^[a-zA-Z0-9]+$/.test(roomParam) || roomParam.length > 4)) {
+    roomParam = '';
+  }
+  return roomParam || '';
 };
 
 const getRoomInstance = () => {
   let roomId = getRoomIdFromUrl();
   if (!roomId) {
     roomId = generateInstanceId();
-    const newUrl = new URL(window.location.href);
-    newUrl.searchParams.set('room', roomId);
-    window.history.replaceState({}, '', newUrl.toString());
+    setInstanceIdInUrl(roomId);
   }
   return roomId;
 };

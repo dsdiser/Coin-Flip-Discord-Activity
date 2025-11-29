@@ -13,6 +13,7 @@ import { userAtom, roomMembersAtom } from './state/userAtoms';
 import { AvatarOverlay } from './components/avatar-overlay/AvatarOverlay';
 import { MessageType } from './state/websocketAtoms';
 import LoadingScreen from './components/loading-screen/LoadingScreen';
+import RoomInput from './components/room-input/RoomInput';
 
 const inIframe = window.self !== window.top;
 
@@ -91,6 +92,7 @@ const CoinFlipApp: React.FC = () => {
         accessToken={accessToken}
         discordSdk={discordSdk}
       />
+      <RoomInput initialRoomId={instanceId} />
       {debugOverlay}
       <div className={appStyles.app}>
         <div className={appStyles.player}>
