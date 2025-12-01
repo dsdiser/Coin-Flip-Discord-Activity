@@ -15,15 +15,17 @@ export default function DebugOverlay(props: {
   const [open, setOpen] = useState(false);
   return (
     <div aria-hidden={!open}>
-      <button
-        className={styles.debugToggle}
-        aria-expanded={open}
-        aria-controls="debug-panel"
-        onClick={() => setOpen((s) => !s)}
-        title={open ? 'Hide debug' : 'Show debug'}
-      >
-        {open ? '\u00d7' : 'Debug'}
-      </button>
+      {!open && (
+        <button
+          className={styles.debugToggle}
+          aria-expanded={open}
+          aria-controls="debug-panel"
+          onClick={() => setOpen((s) => !s)}
+          title={open ? 'Hide debug' : 'Show debug'}
+        >
+          {open ? '\u00d7' : 'Debug'}
+        </button>
+      )}
 
       <aside
         id="debug-panel"
