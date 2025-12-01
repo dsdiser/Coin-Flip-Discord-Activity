@@ -1,6 +1,6 @@
 .coin {
-  width: clamp(150px, 30vw, 400px);
-  height: clamp(150px, 30vw, 400px);
+  width: clamp(200px, 40vw, 500px);
+  height: clamp(200px, 40vw, 500px);
   position: relative;
   transform-style: preserve-3d;
   cursor: pointer;
