@@ -1,13 +1,8 @@
 TODOS
-- Get assets for coin, bot, etc
-- Add input field for roomId that is overridden by instanceId
-- Other asset for person for web version
-- New URL for deployment
-
-Long term TODO:
-- Add animation for moving coin value to user profile
+- NONE :^)
 
 Done:
+- Get assets for coin, bot, etc
 - Discord speaking overlay (ie green outline)
 - Slow down the coin flip before animation finishes
 - Add background spinning when animation is playing
@@ -15,5 +10,6 @@ Done:
 - Fix coin flip animation
 - Write websocket impl
 - Add multiple user profiles
+- Add input field for roomId that is overridden by instanceId
 - Set up cloudflare durable object, need to refactor. 
   Make sure to use acceptWebsocket so it can hibernate as needed
