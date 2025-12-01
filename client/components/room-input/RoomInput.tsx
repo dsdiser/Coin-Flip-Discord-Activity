@@ -6,6 +6,8 @@ interface RoomInputProps {
   initialRoomId?: string;
 }
 
+const isInIframe = window.self !== window.top;
+
 const RoomInput: React.FC<RoomInputProps> = ({ initialRoomId = '' }) => {
   const [roomId, setRoomId] = useState(initialRoomId);
 
@@ -27,6 +29,10 @@ const RoomInput: React.FC<RoomInputProps> = ({ initialRoomId = '' }) => {
       handleSubmit();
     }
   };
+
+  if (isInIframe) {
+    return null;
+  }
 
   return (
     <div className={styles.overlay}>
