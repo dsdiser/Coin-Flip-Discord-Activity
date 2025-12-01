@@ -246,8 +246,13 @@ export default function BalatroBackground({
           program.uniforms.uMouse.value = [value, program.uniforms.uMouse.value[1]];
         },
       });
-      // cycle to next palette and animate all three colors via OKLab
-      const nextIndex = (paletteIndex.current + 1) % palettes.length;
+      // pick a random palette index different from the current one (handles small palette sizes)
+      let nextIndex = paletteIndex.current;
+      if (palettes.length > 1) {
+        // choose a random index from 0..palettes.length-1 excluding current efficiently
+        const r = Math.floor(Math.random() * (palettes.length - 1));
+        nextIndex = r == paletteIndex.current ? (r + 1) % palettes.length : r;
+      }
       const nextPalette = palettes[nextIndex];
       animateColor(
         program.uniforms.uColor1.value as [number, number, number, number],
