@@ -3,7 +3,12 @@
 import { Renderer, Program, Mesh, Triangle } from 'ogl';
 import { useEffect, useRef } from 'react';
 import styles from './BalatroBackground.module.css';
-import { flipAnimationDuration, useStartFlipListener } from '../../state/coinAtoms';
+import {
+  flipAnimationDuration,
+  seedAtom,
+  seedStore,
+  useStartFlipListener,
+} from '../../state/coinAtoms';
 import { animate } from 'motion/react';
 import { hexToVec4, rgbVecToOklab, oklabToRgbVec } from './colorUtil';
 
@@ -139,7 +144,9 @@ export default function BalatroBackground({
   // When the startFlip atom changes, dispatch the 'spinActivation' event for the existing handler
   useStartFlipListener((_, __, newVal) => {
     if (newVal && containerRef.current) {
-      containerRef.current.dispatchEvent(new Event('spinActivation'));
+      // seed is used to derive palette selection
+      let seedVal = seedStore.get(seedAtom);
+      containerRef.current.dispatchEvent(new CustomEvent('spinActivation', { detail: seedVal }));
     }
   });
 
@@ -245,7 +252,8 @@ export default function BalatroBackground({
       );
     }
 
-    function handleSpinActivation() {
+    function handleSpinActivation(e: CustomEvent) {
+      const seedVal: number = e.detail;
       // animate the spin
       animate(program.uniforms.uMouse.value[0], program.uniforms.uMouse.value[0] + 15, {
         type: 'tween',
@@ -258,7 +266,7 @@ export default function BalatroBackground({
       let nextIndex = paletteIndex.current;
       if (palettes.length > 1) {
         // choose a random index from 0..palettes.length-1 excluding current efficiently
-        const r = Math.floor(Math.random() * (palettes.length - 1));
+        const r = Math.floor(Math.abs(seedVal) % (palettes.length - 1));
         nextIndex = r == paletteIndex.current ? (r + 1) % palettes.length : r;
       }
       const nextPalette = palettes[nextIndex];

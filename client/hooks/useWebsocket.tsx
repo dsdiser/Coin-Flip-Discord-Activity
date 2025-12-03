@@ -8,7 +8,7 @@ import {
   FlipStartMessage,
   PresenceMessage,
 } from '../state/websocketAtoms';
-import { seedAtom, startFlipAtom } from '../state/coinAtoms';
+import { seedAtom, seedStore, startFlipAtom } from '../state/coinAtoms';
 import { hc } from 'hono/client';
 import { type appType } from '../../worker/main';
 import { userAtom } from '../state/userAtoms';
@@ -46,6 +46,7 @@ export function useWebsocket(roomId: string) {
         case MessageType.FlipStart:
           setStartFlip(true);
           setSeed((parsedMessage as FlipStartMessage).seed);
+          seedStore.set(seedAtom, (parsedMessage as FlipStartMessage).seed);
           break;
         case MessageType.FlipResult:
           break;

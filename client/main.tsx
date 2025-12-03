@@ -8,7 +8,7 @@ import useWebsocket from './hooks/useWebsocket';
 import DebugOverlay from './components/debug-overlay/DebugOverlay';
 import Coin, { CoinResult } from './components/coin/Coin';
 import BalatroBackground from './components/balatro-background/BalatroBackground';
-import { setRandomSeedAtom, seedAtom } from './state/coinAtoms';
+import { setRandomSeedAtom, seedAtom, seedStore } from './state/coinAtoms';
 import { userAtom, roomMembersAtom } from './state/userAtoms';
 import { AvatarOverlay } from './components/avatar-overlay/AvatarOverlay';
 import { MessageType } from './state/websocketAtoms';
@@ -41,6 +41,7 @@ const CoinFlipApp: React.FC = () => {
 
   function onFlipResult(_result: CoinResult) {
     setRandomSeed();
+    seedStore.set(seedAtom, seed);
   }
 
   const handleFlipSend = () => {
