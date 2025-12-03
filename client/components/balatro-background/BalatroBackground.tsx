@@ -1,4 +1,5 @@
 // Modified from https://reactbits.dev/backgrounds/balatro
+
 import { Renderer, Program, Mesh, Triangle } from 'ogl';
 import { useEffect, useRef } from 'react';
 import styles from './BalatroBackground.module.css';
@@ -112,8 +113,15 @@ const palettes: Array<[string, string, string]> = [
   ['#F2D388', '#C98474', '#874C62'],
   ['#FFDCD8', '#713D97', '#191D5E'],
   ['#CDFFFF', '#76AA5A', '#5D5D23'],
+  ['#E6F7FF', '#4DB8FF', '#032B43'],
+  ['#C8FFD4', '#66C17D', '#083D1A'],
+  ['#FFD6E0', '#FF7AA2', '#4A1030'],
+  ['#FBE8C6', '#8C5E58', '#2E1E1F'],
 ];
 
+// Component is structured a little oddly here. We use Jotai atoms to control when the spin activates, but
+// the actual animation of the spin is triggered by an event listener within the component itself. This is to avoid
+// re-rendering the entire component when the spin is triggered, which would reset the animation and break the continuity of the shader.
 export default function BalatroBackground({
   spinRotation = -2.0,
   spinSpeed = 7.0,
