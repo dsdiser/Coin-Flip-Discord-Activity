@@ -94,7 +94,6 @@ const CoinFlipApp: React.FC = () => {
         discordSdk={discordSdk}
       />
       <RoomInput initialRoomId={instanceId} />
-      {debugOverlay}
       <div className={appStyles.app}>
         <div className={appStyles.player}>
           <div className={appStyles.coinArea}>
