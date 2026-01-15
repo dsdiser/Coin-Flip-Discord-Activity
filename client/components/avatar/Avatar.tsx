@@ -54,7 +54,6 @@ export const Avatar: React.FC<AvatarProps> = ({
     setAvatarUrl(avatarSrc);
   }, [userId, avatar]);
 
-  // TODO: This may need to be proxied via discord
   useEffect(() => {
     if (!accessToken) {
       setDefaultAvatar();
