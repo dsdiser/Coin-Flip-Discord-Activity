@@ -90,7 +90,7 @@ export const AvatarOverlay: React.FC<AvatarOverlayProps> = ({ users, accessToken
         channel_id: discordSdk.channelId,
       });
     };
-  }, [discordSdk, accessToken, visible]);
+  }, [discordSdk]);
 
   if (!visible || visible.length === 0) return null;
 
