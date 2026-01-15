@@ -8,7 +8,7 @@ import {
   FlipStartMessage,
   PresenceMessage,
 } from '../state/websocketAtoms';
-import { seedAtom, seedStore, startFlipAtom } from '../state/coinAtoms';
+import { activeFlipperUserIdAtom, seedAtom, seedStore, startFlipAtom } from '../state/coinAtoms';
 import { hc } from 'hono/client';
 import { type appType } from '../../worker/main';
 import { userAtom } from '../state/userAtoms';
@@ -30,6 +30,7 @@ export function useWebsocket(roomId: string) {
   const setSeed = useSetAtom(seedAtom);
   const setPushIncoming = useSetAtom(pushIncomingAtom);
   const setRoomMembers = useSetAtom(roomMembersAtom);
+  const setActiveFlipperUserId = useSetAtom(activeFlipperUserIdAtom);
 
   const handleMessage = useCallback(
     (parsedMessage: IncomingMessage) => {
@@ -44,8 +45,10 @@ export function useWebsocket(roomId: string) {
           setRoomMembers(members);
           break;
         case MessageType.FlipStart:
-          setSeed((parsedMessage as FlipStartMessage).seed);
-          seedStore.set(seedAtom, (parsedMessage as FlipStartMessage).seed);
+          let message = parsedMessage as FlipStartMessage;
+          setSeed(message.seed);
+          seedStore.set(seedAtom, message.seed);
+          setActiveFlipperUserId(message.userId);
           setStartFlip(true);
           break;
         case MessageType.FlipResult:

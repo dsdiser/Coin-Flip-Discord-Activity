@@ -2,7 +2,11 @@ import React, { useCallback, useEffect } from 'react';
 import { motion, Transition, useAnimation } from 'motion/react';
 import styles from './Avatar.module.css';
 import { useAtomValue } from 'jotai';
-import { flipAnimationDuration, startFlipAtom } from '../../state/coinAtoms';
+import {
+  flipAnimationDuration,
+  startFlipAtom,
+  activeFlipperUserIdAtom,
+} from '../../state/coinAtoms';
 
 interface AvatarProps {
   guildId?: string; // Discord Guild ID to fetch guild-specific avatarS
@@ -30,14 +34,14 @@ export const Avatar: React.FC<AvatarProps> = ({
 }) => {
   const [avatarUrl, setAvatarUrl] = React.useState<string | null>(null);
   const startFlip = useAtomValue(startFlipAtom);
+  const activeFlipperUserId = useAtomValue(activeFlipperUserIdAtom);
   const controls = useAnimation();
 
   useEffect(() => {
-    // TODO: only animate for the flipper?
-    if (startFlip) {
+    if (startFlip && activeFlipperUserId === userId) {
       controls.start({ translateY: [10, 0], transition: transition });
     }
-  }, [startFlip, controls]);
+  }, [startFlip, activeFlipperUserId, controls]);
 
   const setDefaultAvatar = useCallback(() => {
     let avatarSrc = '';
