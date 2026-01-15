@@ -44,9 +44,9 @@ export function useWebsocket(roomId: string) {
           setRoomMembers(members);
           break;
         case MessageType.FlipStart:
-          setStartFlip(true);
           setSeed((parsedMessage as FlipStartMessage).seed);
           seedStore.set(seedAtom, (parsedMessage as FlipStartMessage).seed);
+          setStartFlip(true);
           break;
         case MessageType.FlipResult:
           break;
